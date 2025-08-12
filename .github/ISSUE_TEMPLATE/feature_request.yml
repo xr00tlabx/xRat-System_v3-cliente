@@ -1,0 +1,82 @@
+name: Feature Request
+description: Sugerir uma nova funcionalidade ou melhoria
+title: "[FEATURE] "
+labels: ["enhancement", "needs-discussion"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Obrigado por sua sugestão! Descreva a funcionalidade que você gostaria de ver implementada.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problema ou Necessidade
+      description: Que problema esta funcionalidade resolveria?
+      placeholder: Ex. É frustrante que eu não consiga filtrar as janelas monitoradas...
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Solução Proposta
+      description: Descreva a funcionalidade que você gostaria
+      placeholder: Ex. Adicionar filtros para mostrar apenas janelas de aplicações específicas
+    validations:
+      required: true
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: Categoria
+      description: Em que área esta funcionalidade se encaixa?
+      options:
+        - Interface do Usuário
+        - Monitoramento de Janelas
+        - Sistema de Logs
+        - Performance
+        - Configurações
+        - Integração
+        - Outro
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Prioridade
+      description: Qual a importância desta funcionalidade para você?
+      options:
+        - Baixa - seria legal ter
+        - Média - melhoraria minha experiência
+        - Alta - muito importante para meu uso
+        - Crítica - bloqueante para meu uso
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternativas Consideradas
+      description: Você considerou outras formas de resolver este problema?
+      placeholder: Ex. Tentei usar filtros externos, mas não funcionaram bem...
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Contexto Adicional
+      description: Qualquer outra informação, mockups, referências, etc.
+      placeholder: Ex. Esta funcionalidade existe na aplicação X e funciona assim...
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Checklist
+      options:
+        - label: Verifiquei se esta funcionalidade já não foi solicitada
+          required: true
+        - label: Esta funcionalidade está alinhada com o propósito da aplicação
+          required: true

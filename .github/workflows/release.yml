@@ -1,0 +1,94 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  create-release:
+    name: Create Release
+    runs-on: windows-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup MinGW
+      uses: egor-tensin/setup-mingw@v2
+      with:
+        platform: x64
+        
+    - name: Setup MSVC
+      uses: ilammy/msvc-dev-cmd@v1
+      
+    - name: Create build directories
+      run: |
+        New-Item -ItemType Directory -Path "obj", "obj\utils", "obj\forms", "obj\controllers", "bin", "release" -Force
+      shell: powershell
+      
+    - name: Build MinGW Release
+      run: |
+        echo Building MinGW release...
+        mingw32-make.exe clean
+        mingw32-make.exe release
+        copy bin\main.exe release\xrat-mingw-x64.exe
+      shell: cmd
+      
+    - name: Build MSVC Release
+      run: |
+        echo Building MSVC release...
+        cl /std:c++11 /W3 /O2 /DNDEBUG /Iinclude /c src/utils/AppUtils.cpp /Fo:obj/utils/AppUtils.obj
+        cl /std:c++11 /W3 /O2 /DNDEBUG /Iinclude /c src/utils/WindowMonitor.cpp /Fo:obj/utils/WindowMonitor.obj
+        cl /std:c++11 /W3 /O2 /DNDEBUG /Iinclude /c src/controllers/MainController.cpp /Fo:obj/controllers/MainController.obj
+        cl /std:c++11 /W3 /O2 /DNDEBUG /Iinclude /c src/forms/MainForm.cpp /Fo:obj/forms/MainForm.obj
+        cl /std:c++11 /W3 /O2 /DNDEBUG /Iinclude /c src/main.cpp /Fo:obj/main.obj
+        link obj/main.obj obj/utils/AppUtils.obj obj/utils/WindowMonitor.obj obj/controllers/MainController.obj obj/forms/MainForm.obj /OUT:release/xrat-msvc-x64.exe gdi32.lib user32.lib kernel32.lib
+      shell: cmd
+      
+    - name: Create changelog
+      run: |
+        $tag = $env:GITHUB_REF -replace 'refs/tags/', ''
+        $changelogContent = "# Changelog " + $tag + "`n`n"
+        $changelogContent += "## 🚀 Funcionalidades`n"
+        $changelogContent += "- Interface Win32 nativa com arquitetura MVC`n"
+        $changelogContent += "- Monitoramento de janelas ativas em background (thread separada)`n"
+        $changelogContent += "- Sistema de logging estruturado`n"
+        $changelogContent += "- Build suportado para MinGW e MSVC`n`n"
+        $changelogContent += "## 📦 Binários Inclusos`n"
+        $changelogContent += "- **xrat-mingw-x64.exe** - Compilado com MinGW/GCC (recomendado)`n"
+        $changelogContent += "- **xrat-msvc-x64.exe** - Compilado com Visual Studio/MSVC`n`n"
+        $changelogContent += "## 💻 Requisitos do Sistema`n"
+        $changelogContent += "- Windows 7 ou superior`n"
+        $changelogContent += "- Arquitetura x64`n`n"
+        $changelogContent += "## 🔧 Como Usar`n"
+        $changelogContent += "1. Baixe o executável de sua preferência`n"
+        $changelogContent += "2. Execute o programa`n"
+        $changelogContent += "3. Use os botões da interface para interagir`n"
+        $changelogContent += "4. Verifique os logs em application.log`n`n"
+        $changelogContent += "## 📝 Logs e Monitoramento`n"
+        $changelogContent += "O programa automaticamente:`n"
+        $changelogContent += "- Registra eventos da aplicação`n"
+        $changelogContent += "- Monitora janelas ativas a cada 2 segundos`n"
+        $changelogContent += "- Salva logs detalhados para debug`n`n"
+        $changelogContent += "Para mais informações, consulte o README.md."
+        $changelogContent | Out-File -FilePath "release\CHANGELOG.md" -Encoding UTF8
+        Copy-Item "README.md" "release\"
+        Copy-Item ".github-copilot-instructions.md" "release\"
+      shell: powershell
+      
+    - name: Create release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |
+          release/xrat-mingw-x64.exe
+          release/xrat-msvc-x64.exe
+          release/CHANGELOG.md
+          release/README.md
+          release/.github-copilot-instructions.md
+        name: Release ${{ github.ref_name }}
+        body_path: release/CHANGELOG.md
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

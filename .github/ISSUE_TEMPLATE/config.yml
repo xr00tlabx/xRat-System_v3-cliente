@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 📚 Documentação
+    url: https://github.com/xr00tlabx/xRat-System_v3-cliente/blob/master/README.md
+    about: Consulte a documentação completa do projeto
+  - name: 💬 Discussões
+    url: https://github.com/xr00tlabx/xRat-System_v3-cliente/discussions
+    about: Para perguntas gerais, ideias e discussões da comunidade
+  - name: 🔧 Suporte Técnico
+    url: https://github.com/xr00tlabx/xRat-System_v3-cliente/discussions/categories/q-a
+    about: Para questões técnicas e ajuda com problemas

@@ -1,0 +1,157 @@
+name: Build and Test
+
+on:
+  push:
+    branches: [ master, develop ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build-mingw:
+    name: Build with MinGW
+    runs-on: windows-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup MinGW
+      uses: egor-tensin/setup-mingw@v2
+      with:
+        platform: x64
+        
+    - name: Create build directories
+      run: |
+        if (!(Test-Path "obj")) { New-Item -ItemType Directory -Path "obj" }
+        if (!(Test-Path "obj\utils")) { New-Item -ItemType Directory -Path "obj\utils" }
+        if (!(Test-Path "obj\forms")) { New-Item -ItemType Directory -Path "obj\forms" }
+        if (!(Test-Path "obj\controllers")) { New-Item -ItemType Directory -Path "obj\controllers" }
+        if (!(Test-Path "bin")) { New-Item -ItemType Directory -Path "bin" }
+      shell: powershell
+      
+    - name: Build with MinGW
+      run: |
+        g++ --version
+        mingw32-make.exe info
+        mingw32-make.exe clean
+        mingw32-make.exe all
+      shell: cmd
+      
+    - name: Test executable exists
+      run: |
+        if (Test-Path "bin\main.exe") {
+          Write-Host "✓ Executável criado com sucesso"
+          $size = (Get-Item "bin\main.exe").length
+          Write-Host "Tamanho: $size bytes"
+        } else {
+          Write-Host "✗ Falha: Executável não encontrado"
+          exit 1
+        }
+      shell: powershell
+      
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: xrat-mingw-build
+        path: bin/main.exe
+        retention-days: 30
+
+  build-msvc:
+    name: Build with MSVC
+    runs-on: windows-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v2
+      
+    - name: Setup MSVC
+      uses: ilammy/msvc-dev-cmd@v1
+      
+    - name: Create build directories
+      run: |
+        if (!(Test-Path "obj")) { New-Item -ItemType Directory -Path "obj" }
+        if (!(Test-Path "obj\utils")) { New-Item -ItemType Directory -Path "obj\utils" }
+        if (!(Test-Path "obj\forms")) { New-Item -ItemType Directory -Path "obj\forms" }
+        if (!(Test-Path "obj\controllers")) { New-Item -ItemType Directory -Path "obj\controllers" }
+        if (!(Test-Path "bin")) { New-Item -ItemType Directory -Path "bin" }
+      shell: powershell
+      
+    - name: Build with MSVC
+      run: |
+        cl
+        echo [1/6] Compilando AppUtils...
+        cl /std:c++11 /W3 /O2 /Iinclude /c src/utils/AppUtils.cpp /Fo:obj/utils/AppUtils.obj
+        echo [2/6] Compilando WindowMonitor...
+        cl /std:c++11 /W3 /O2 /Iinclude /c src/utils/WindowMonitor.cpp /Fo:obj/utils/WindowMonitor.obj
+        echo [3/6] Compilando MainController...
+        cl /std:c++11 /W3 /O2 /Iinclude /c src/controllers/MainController.cpp /Fo:obj/controllers/MainController.obj
+        echo [4/6] Compilando MainForm...
+        cl /std:c++11 /W3 /O2 /Iinclude /c src/forms/MainForm.cpp /Fo:obj/forms/MainForm.obj
+        echo [5/6] Compilando Main...
+        cl /std:c++11 /W3 /O2 /Iinclude /c src/main.cpp /Fo:obj/main.obj
+        echo [6/6] Linkando...
+        link obj/main.obj obj/utils/AppUtils.obj obj/utils/WindowMonitor.obj obj/controllers/MainController.obj obj/forms/MainForm.obj /OUT:bin/main.exe gdi32.lib user32.lib kernel32.lib
+      shell: cmd
+      
+    - name: Test executable exists
+      run: |
+        if (Test-Path "bin\main.exe") {
+          Write-Host "✓ Executável MSVC criado com sucesso"
+          $size = (Get-Item "bin\main.exe").length
+          Write-Host "Tamanho: $size bytes"
+        } else {
+          Write-Host "✗ Falha: Executável MSVC não encontrado"
+          exit 1
+        }
+      shell: powershell
+      
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: xrat-msvc-build
+        path: bin/main.exe
+        retention-days: 30
+
+  code-quality:
+    name: Code Quality Check
+    runs-on: windows-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Check file structure
+      run: |
+        Write-Host "=== Verificando estrutura do projeto ==="
+        Write-Host "Arquivos principais:"
+        if (Test-Path "src\main.cpp") { Write-Host "✓ src\main.cpp" } else { Write-Host "✗ src\main.cpp" }
+        if (Test-Path "include\main.h") { Write-Host "✓ include\main.h" } else { Write-Host "✗ include\main.h" }
+        if (Test-Path "Makefile") { Write-Host "✓ Makefile" } else { Write-Host "✗ Makefile" }
+        if (Test-Path "build_mvc.bat") { Write-Host "✓ build_mvc.bat" } else { Write-Host "✗ build_mvc.bat" }
+        
+        Write-Host "`nMódulos MVC:"
+        if (Test-Path "src\controllers") { Write-Host "✓ Controllers" } else { Write-Host "✗ Controllers" }
+        if (Test-Path "src\forms") { Write-Host "✓ Forms" } else { Write-Host "✗ Forms" }
+        if (Test-Path "src\utils") { Write-Host "✓ Utils" } else { Write-Host "✗ Utils" }
+        
+        Write-Host "`nContagem de arquivos:"
+        $cppFiles = (Get-ChildItem -Recurse -Filter "*.cpp").Count
+        $hFiles = (Get-ChildItem -Recurse -Filter "*.h").Count
+        Write-Host "Arquivos .cpp: $cppFiles"
+        Write-Host "Arquivos .h: $hFiles"
+      shell: powershell
+      
+    - name: Check for TODO/FIXME
+      run: |
+        Write-Host "=== Verificando TODOs e FIXMEs ==="
+        $todos = Select-String -Pattern "TODO|FIXME|XXX|HACK" -Path "src\*.cpp", "src\*\*.cpp", "include\*.h", "include\*\*.h" -ErrorAction SilentlyContinue
+        if ($todos) {
+          Write-Host "Encontrados:"
+          $todos | ForEach-Object { Write-Host "  $($_.Filename):$($_.LineNumber) - $($_.Line.Trim())" }
+        } else {
+          Write-Host "✓ Nenhum TODO/FIXME encontrado"
+        }
+      shell: powershell

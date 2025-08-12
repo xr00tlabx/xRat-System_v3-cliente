@@ -12,7 +12,6 @@
 #include "../include/controllers/MainController.h"
 #include "../include/forms/MainForm.h"
 #include "../include/utils/AppUtils.h"
-#include "../include/utils/WindowMonitor.h"
 
 // =============================================================================
 // IMPLEMENTAÇÃO DA CLASSE APPLICATION
@@ -71,10 +70,6 @@ bool Application::InitializeModules(HINSTANCE hInstance)
 
         // O MainForm será inicializado pelo Controller quando necessário
 
-        // Iniciar thread de monitoramento de janelas
-        WindowMonitor::Start();
-        AppUtils::DebugPrint("Application::InitializeModules - WindowMonitor iniciado\n");
-
         AppUtils::WriteLog("Todos os módulos inicializados com sucesso", "INFO");
         return true;
     }
@@ -91,10 +86,6 @@ void Application::ShutdownModules()
 
     try
     {
-        // Parar thread de monitoramento primeiro
-        WindowMonitor::Stop();
-        AppUtils::DebugPrint("Application::ShutdownModules - WindowMonitor finalizado\n");
-
         // Finalizar o Form
         MainForm::Cleanup();
         AppUtils::DebugPrint("Application::ShutdownModules - MainForm finalizado\n");

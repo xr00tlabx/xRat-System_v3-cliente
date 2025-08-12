@@ -1,0 +1,98 @@
+name: Bug Report
+description: Relatar um bug ou problema na aplicação
+title: "[BUG] "
+labels: ["bug", "needs-triage"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Obrigado por reportar este bug! Por favor, preencha as informações abaixo para nos ajudar a resolver o problema.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Descrição do Problema
+      description: Descreva claramente o que está acontecendo
+      placeholder: Ex. A aplicação trava quando clico no botão "Mostrar Informações"
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Comportamento Esperado
+      description: O que deveria acontecer?
+      placeholder: Ex. Deveria exibir uma janela com informações do sistema
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Passos para Reproduzir
+      description: Como reproduzir este problema?
+      placeholder: |
+        1. Abrir a aplicação
+        2. Clicar no botão "Mostrar Informações"
+        3. Ver o erro...
+    validations:
+      required: true
+
+  - type: dropdown
+    id: os
+    attributes:
+      label: Sistema Operacional
+      description: Qual versão do Windows você está usando?
+      options:
+        - Windows 11
+        - Windows 10
+        - Windows 8.1
+        - Windows 7
+        - Outro (especifique nos comentários)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: build
+    attributes:
+      label: Versão do Build
+      description: Qual versão você está usando?
+      options:
+        - MinGW/GCC Build
+        - MSVC Build
+        - Build personalizado
+        - Não sei
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs da Aplicação
+      description: Cole aqui o conteúdo do arquivo application.log (se disponível)
+      placeholder: |
+        [Mon Aug 11 20:54:03 2025] [INFO] Aplicação iniciando
+        [Mon Aug 11 20:54:05 2025] [ERROR] Erro ao processar...
+      render: text
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Informações Adicionais
+      description: Qualquer outra informação relevante
+      placeholder: Ex. O problema só acontece quando há muitas janelas abertas
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Checklist
+      description: Confirme que você verificou estas informações
+      options:
+        - label: Verifiquei se já não existe um issue similar
+          required: true
+        - label: Incluí logs da aplicação (se aplicável)
+          required: false
+        - label: Posso reproduzir o problema consistentemente
+          required: false
