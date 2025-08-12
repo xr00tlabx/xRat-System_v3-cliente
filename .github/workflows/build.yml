@@ -16,9 +16,16 @@ jobs:
       uses: actions/checkout@v4
       
     - name: Setup MinGW
-      uses: egor-tensin/setup-mingw@v2
-      with:
-        platform: x64
+      run: |
+        choco install mingw -y --no-progress
+        $mingwPath = "C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\bin"
+        if (Test-Path $mingwPath) {
+          echo "$mingwPath" >> $env:GITHUB_PATH
+          Write-Host "MinGW instalado e adicionado ao PATH"
+        } else {
+          throw "MinGW nao encontrado apos instalacao"
+        }
+      shell: powershell
         
     - name: Create build directories
       run: |
@@ -40,11 +47,11 @@ jobs:
     - name: Test executable exists
       run: |
         if (Test-Path "bin\main.exe") {
-          Write-Host "✓ Executável criado com sucesso"
+          Write-Host "[OK] Executavel criado com sucesso"
           $size = (Get-Item "bin\main.exe").length
           Write-Host "Tamanho: $size bytes"
         } else {
-          Write-Host "✗ Falha: Executável não encontrado"
+          Write-Host "[ERRO] Falha: Executavel nao encontrado"
           exit 1
         }
       shell: powershell
@@ -83,15 +90,15 @@ jobs:
       run: |
         cl
         echo [1/6] Compilando AppUtils...
-        cl /std:c++11 /W3 /O2 /Iinclude /c src/utils/AppUtils.cpp /Fo:obj/utils/AppUtils.obj
+        cl /EHsc /W3 /O2 /D_CRT_SECURE_NO_WARNINGS /Iinclude /c src/utils/AppUtils.cpp /Fo:obj/utils/AppUtils.obj
         echo [2/6] Compilando WindowMonitor...
-        cl /std:c++11 /W3 /O2 /Iinclude /c src/utils/WindowMonitor.cpp /Fo:obj/utils/WindowMonitor.obj
+        cl /EHsc /W3 /O2 /D_CRT_SECURE_NO_WARNINGS /Iinclude /c src/utils/WindowMonitor.cpp /Fo:obj/utils/WindowMonitor.obj
         echo [3/6] Compilando MainController...
-        cl /std:c++11 /W3 /O2 /Iinclude /c src/controllers/MainController.cpp /Fo:obj/controllers/MainController.obj
+        cl /EHsc /W3 /O2 /D_CRT_SECURE_NO_WARNINGS /Iinclude /c src/controllers/MainController.cpp /Fo:obj/controllers/MainController.obj
         echo [4/6] Compilando MainForm...
-        cl /std:c++11 /W3 /O2 /Iinclude /c src/forms/MainForm.cpp /Fo:obj/forms/MainForm.obj
+        cl /EHsc /W3 /O2 /D_CRT_SECURE_NO_WARNINGS /Iinclude /c src/forms/MainForm.cpp /Fo:obj/forms/MainForm.obj
         echo [5/6] Compilando Main...
-        cl /std:c++11 /W3 /O2 /Iinclude /c src/main.cpp /Fo:obj/main.obj
+        cl /EHsc /W3 /O2 /D_CRT_SECURE_NO_WARNINGS /Iinclude /c src/main.cpp /Fo:obj/main.obj
         echo [6/6] Linkando...
         link obj/main.obj obj/utils/AppUtils.obj obj/utils/WindowMonitor.obj obj/controllers/MainController.obj obj/forms/MainForm.obj /OUT:bin/main.exe gdi32.lib user32.lib kernel32.lib
       shell: cmd
@@ -99,11 +106,11 @@ jobs:
     - name: Test executable exists
       run: |
         if (Test-Path "bin\main.exe") {
-          Write-Host "✓ Executável MSVC criado com sucesso"
+          Write-Host "[OK] Executavel MSVC criado com sucesso"
           $size = (Get-Item "bin\main.exe").length
           Write-Host "Tamanho: $size bytes"
         } else {
-          Write-Host "✗ Falha: Executável MSVC não encontrado"
+          Write-Host "[ERRO] Falha: Executavel MSVC nao encontrado"
           exit 1
         }
       shell: powershell
@@ -127,15 +134,15 @@ jobs:
       run: |
         Write-Host "=== Verificando estrutura do projeto ==="
         Write-Host "Arquivos principais:"
-        if (Test-Path "src\main.cpp") { Write-Host "✓ src\main.cpp" } else { Write-Host "✗ src\main.cpp" }
-        if (Test-Path "include\main.h") { Write-Host "✓ include\main.h" } else { Write-Host "✗ include\main.h" }
-        if (Test-Path "Makefile") { Write-Host "✓ Makefile" } else { Write-Host "✗ Makefile" }
-        if (Test-Path "build_mvc.bat") { Write-Host "✓ build_mvc.bat" } else { Write-Host "✗ build_mvc.bat" }
+        if (Test-Path "src\main.cpp") { Write-Host "[OK] src\main.cpp" } else { Write-Host "[ERRO] src\main.cpp" }
+        if (Test-Path "include\main.h") { Write-Host "[OK] include\main.h" } else { Write-Host "[ERRO] include\main.h" }
+        if (Test-Path "Makefile") { Write-Host "[OK] Makefile" } else { Write-Host "[ERRO] Makefile" }
+        if (Test-Path "build_mvc.bat") { Write-Host "[OK] build_mvc.bat" } else { Write-Host "[ERRO] build_mvc.bat" }
         
-        Write-Host "`nMódulos MVC:"
-        if (Test-Path "src\controllers") { Write-Host "✓ Controllers" } else { Write-Host "✗ Controllers" }
-        if (Test-Path "src\forms") { Write-Host "✓ Forms" } else { Write-Host "✗ Forms" }
-        if (Test-Path "src\utils") { Write-Host "✓ Utils" } else { Write-Host "✗ Utils" }
+        Write-Host "`nModulos MVC:"
+        if (Test-Path "src\controllers") { Write-Host "[OK] Controllers" } else { Write-Host "[ERRO] Controllers" }
+        if (Test-Path "src\forms") { Write-Host "[OK] Forms" } else { Write-Host "[ERRO] Forms" }
+        if (Test-Path "src\utils") { Write-Host "[OK] Utils" } else { Write-Host "[ERRO] Utils" }
         
         Write-Host "`nContagem de arquivos:"
         $cppFiles = (Get-ChildItem -Recurse -Filter "*.cpp").Count
@@ -152,6 +159,6 @@ jobs:
           Write-Host "Encontrados:"
           $todos | ForEach-Object { Write-Host "  $($_.Filename):$($_.LineNumber) - $($_.Line.Trim())" }
         } else {
-          Write-Host "✓ Nenhum TODO/FIXME encontrado"
+          Write-Host "[OK] Nenhum TODO/FIXME encontrado"
         }
       shell: powershell
