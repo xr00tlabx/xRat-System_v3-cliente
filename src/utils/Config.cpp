@@ -373,6 +373,14 @@ namespace Config
             configMap["windowHeight"] = ConfigValue(400);
             configMap["windowCentered"] = ConfigValue(true);
             
+            // Configurações padrão de reconexão
+            configMap["reconnectionEnabled"] = ConfigValue(true);
+            configMap["reconnectionMaxAttempts"] = ConfigValue(10);
+            configMap["reconnectionInitialDelay"] = ConfigValue(1000);
+            configMap["reconnectionMaxDelay"] = ConfigValue(60000);
+            configMap["reconnectionBackoffFactor"] = ConfigValue(2.0);
+            configMap["reconnectionTimeout"] = ConfigValue(5000);
+            
             AppUtils::WriteLog("Configurações padrão criadas", "CONFIG");
             return SaveToFile();
         }
@@ -541,5 +549,75 @@ namespace Config
     {
         SetString("apiUrl", apiUrl, true);
         AppUtils::WriteLog("URL da API atualizada: " + apiUrl, "CONFIG");
+    }
+
+    // =============================================================================
+    // IMPLEMENTAÇÃO DAS CONFIGURAÇÕES DE RECONEXÃO
+    // =============================================================================
+
+    bool GetReconnectionEnabled()
+    {
+        return GetBool("reconnectionEnabled", true);
+    }
+
+    void SetReconnectionEnabled(bool enabled)
+    {
+        SetBool("reconnectionEnabled", enabled, true);
+        AppUtils::WriteLog("Reconexão automática atualizada: " + std::string(enabled ? "ON" : "OFF"), "CONFIG");
+    }
+
+    int GetReconnectionMaxAttempts()
+    {
+        return GetInt("reconnectionMaxAttempts", 10);
+    }
+
+    void SetReconnectionMaxAttempts(int maxAttempts)
+    {
+        SetInt("reconnectionMaxAttempts", maxAttempts, true);
+        AppUtils::WriteLog("Máximo de tentativas de reconexão atualizado: " + std::to_string(maxAttempts), "CONFIG");
+    }
+
+    int GetReconnectionInitialDelay()
+    {
+        return GetInt("reconnectionInitialDelay", 1000);
+    }
+
+    void SetReconnectionInitialDelay(int initialDelay)
+    {
+        SetInt("reconnectionInitialDelay", initialDelay, true);
+        AppUtils::WriteLog("Delay inicial de reconexão atualizado: " + std::to_string(initialDelay) + "ms", "CONFIG");
+    }
+
+    int GetReconnectionMaxDelay()
+    {
+        return GetInt("reconnectionMaxDelay", 60000);
+    }
+
+    void SetReconnectionMaxDelay(int maxDelay)
+    {
+        SetInt("reconnectionMaxDelay", maxDelay, true);
+        AppUtils::WriteLog("Delay máximo de reconexão atualizado: " + std::to_string(maxDelay) + "ms", "CONFIG");
+    }
+
+    double GetReconnectionBackoffFactor()
+    {
+        return GetDouble("reconnectionBackoffFactor", 2.0);
+    }
+
+    void SetReconnectionBackoffFactor(double backoffFactor)
+    {
+        SetDouble("reconnectionBackoffFactor", backoffFactor, true);
+        AppUtils::WriteLog("Fator de backoff atualizado: " + std::to_string(backoffFactor), "CONFIG");
+    }
+
+    int GetReconnectionTimeout()
+    {
+        return GetInt("reconnectionTimeout", 5000);
+    }
+
+    void SetReconnectionTimeout(int timeout)
+    {
+        SetInt("reconnectionTimeout", timeout, true);
+        AppUtils::WriteLog("Timeout de reconexão atualizado: " + std::to_string(timeout) + "ms", "CONFIG");
     }
 }
