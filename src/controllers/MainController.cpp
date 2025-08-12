@@ -137,32 +137,28 @@ void MainController::OnButtonHelloClicked()
     IncrementClickCount();
 
     std::stringstream ss;
-    ss << "🎯 " << appData->appName << " - Informações Detalhadas\n\n"
-       << "📋 Informações da Aplicação:\n"
+    ss << "Main Application - Informações Detalhadas\n\n"
+       << "Informações da Aplicação:\n"
        << "• Nome: " << appData->appName << "\n"
        << "• Versão: " << appData->appVersion << "\n"
-       << "• Autor: " << appData->appAuthor << "\n"
-       << "• Descrição: " << appData->appDescription << "\n"
-       << "• Data de Build: " << appData->buildDate << "\n"
-       << "• Hora de Build: " << appData->buildTime << "\n\n"
-       << "🛠️ Informações Técnicas:\n"
-       << "• Linguagem: C++ (ISO C++11)\n"
-       << "• API: Win32 Native\n"
-       << "• Arquitetura: x64\n"
-       << "• Paradigma: Orientado a Objetos\n"
-       << "• Estrutura: MVC (Model-View-Controller)\n\n"
-       << "📊 Estatísticas de Uso:\n"
-       << "• Cliques no botão: " << appData->clickCount << "\n"
-       << "• Modo Debug: " << (appData->isDebugMode ? "Ativado" : "Desativado") << "\n"
-       << "• Data/Hora atual: " << AppUtils::GetCurrentDateTime() << "\n\n"
-       << "✨ Recursos Implementados:\n"
-       << "• Interface gráfica modular\n"
-       << "• Arquitetura MVC\n"
-       << "• Sistema de logging\n"
-       << "• Gerenciamento de recursos\n"
-       << "• Utilitários diversos";
+       << "• Desenvolvido por: " << appData->appAuthor << "\n"
+       << "• Data: " << appData->buildDate << "\n"
+       << "• Hora: " << appData->buildTime << "\n\n"
+       << "Arquitetura MVC:\n"
+       << "Esta aplicação utiliza o padrão Model-View-Controller "
+       << "para separar responsabilidades e facilitar manutenção.\n\n"
+       << "Como usar:\n"
+       << "• Clique em 'Mostrar Informações' para ver detalhes\n"
+       << "• Use 'Sobre' para informações da aplicação\n"
+       << "• 'Configurações' para alterar o modo debug\n"
+       << "• 'Sair' para fechar a aplicação\n\n"
+       << "Objetivo:\n"
+       << "Demonstrar boas práticas de desenvolvimento C++ com "
+       << "interface gráfica nativa do Windows.\n\n"
+       << "Desenvolvido por: " << appData->appAuthor << "\n"
+       << "Versão: " << appData->appVersion;
 
-    AppUtils::ShowInfoMessage(ss.str().c_str(), "Informações do Sistema");
+    AppUtils::ShowInfoMessage(ss.str().c_str(), "Informações");
 
     // Atualizar status no formulário
     MainForm::UpdateStatusText("Informações exibidas com sucesso!");
@@ -176,17 +172,18 @@ void MainController::OnButtonAboutClicked()
         return;
 
     std::stringstream ss;
-    ss << "ℹ️ Sobre o " << appData->appName << "\n\n"
-       << "Esta é uma aplicação de demonstração desenvolvida em C++ "
-       << "utilizando a API nativa do Windows (Win32).\n\n"
-       << "🏗️ Arquitetura:\n"
-       << "A aplicação segue o padrão MVC (Model-View-Controller), "
-       << "separando a lógica de negócio da interface do usuário.\n\n"
-       << "📁 Estrutura de Módulos:\n"
+    ss << "Sobre o Main Application\n\n"
+       << "Esta é uma aplicação de demonstração desenvolvida "
+       << "em C++ utilizando a API nativa do Windows (Win32).\n\n"
+       << "Arquitetura:\n"
+       << "A aplicação segue o padrão MVC "
+       << "(Model-View-Controller), separando a lógica de negócio da "
+       << "interface do usuário.\n\n"
+       << "Estrutura de Módulos:\n"
        << "• Forms: Responsável pela interface\n"
        << "• Controllers: Lógica de negócio\n"
        << "• Utils: Funções utilitárias\n\n"
-       << "🎯 Objetivo:\n"
+       << "Objetivo:\n"
        << "Demonstrar boas práticas de desenvolvimento C++ "
        << "com interface gráfica nativa do Windows.\n\n"
        << "Desenvolvido por: " << appData->appAuthor << "\n"
@@ -206,8 +203,8 @@ void MainController::OnButtonConfigClicked()
     SetDebugMode(!appData->isDebugMode);
 
     std::stringstream ss;
-    ss << "⚙️ Configurações da Aplicação\n\n"
-       << "Modo Debug: " << (appData->isDebugMode ? "✅ Ativado" : "❌ Desativado") << "\n\n"
+    ss << "Configurações da Aplicação\n\n"
+       << "Modo Debug: " << (appData->isDebugMode ? "Ativado" : "Desativado") << "\n\n"
        << "O modo debug foi " << (appData->isDebugMode ? "ativado" : "desativado") << ".\n"
        << "Isso afeta o nível de logging e informações de debug.";
 
@@ -490,16 +487,16 @@ void MainController::ShowWelcomeMessage()
         return;
 
     std::stringstream ss;
-    ss << "🎉 Bem-vindo ao " << appData->appName << "!\n\n"
-       << "📝 Informações:\n"
+    ss << "Bem-vindo ao " << appData->appName << "!\n\n"
+       << "Informações:\n"
        << "• Versão: " << appData->appVersion << "\n"
        << "• Desenvolvido por: " << appData->appAuthor << "\n"
        << "• Data: " << AppUtils::GetCurrentDate() << "\n"
        << "• Hora: " << AppUtils::GetCurrentTime() << "\n\n"
-       << "🏗️ Arquitetura MVC:\n"
+       << "Arquitetura MVC:\n"
        << "Esta aplicação utiliza o padrão Model-View-Controller "
        << "para separar responsabilidades e facilitar manutenção.\n\n"
-       << "🎮 Como usar:\n"
+       << "Como usar:\n"
        << "• Clique em 'Mostrar Informações' para ver detalhes\n"
        << "• Use 'Sobre' para informações da aplicação\n"
        << "• 'Configurações' para alterar o modo debug\n"
