@@ -9,6 +9,7 @@
 // =============================================================================
 
 #include "network/SocketManager.h"
+#include "network/ReconnectionManager.h"
 #include "utils/AppUtils.h"
 #include "utils/Config.h"
 #include <sstream>
@@ -34,6 +35,9 @@ SocketManager::SocketManager() {
     InitializeCriticalSection(&criticalSection);
     wsaInitialized = false;
     
+    // Initialize reconnection manager
+    reconnectionManager = new ReconnectionManager();
+    
     AppUtils::WriteLog("SocketManager: Instância criada", "INFO");
 }
 
@@ -44,6 +48,12 @@ SocketManager::~SocketManager() {
     if (connectionData.webSocketClient) {
         delete connectionData.webSocketClient;
         connectionData.webSocketClient = nullptr;
+    }
+    
+    // Limpar ReconnectionManager
+    if (reconnectionManager) {
+        delete reconnectionManager;
+        reconnectionManager = nullptr;
     }
     
     DeleteCriticalSection(&criticalSection);
@@ -73,6 +83,12 @@ bool SocketManager::Initialize() {
     }
     
     LeaveCriticalSection(&criticalSection);
+    
+    // Inicializar sistema de reconexão
+    if (!InitializeReconnectionSystem()) {
+        AppUtils::WriteLog("SocketManager: Aviso - Sistema de reconexão não inicializado", "WARNING");
+    }
+    
     AppUtils::WriteLog("SocketManager: Inicializado com sucesso", "INFO");
     return true;
 }
@@ -142,11 +158,22 @@ bool SocketManager::ConnectFromConfig() {
         }
         
         AppUtils::WriteLog("SocketManager: Conectado via WebSocket com sucesso", "INFO");
+        
+        // Resetar tentativas de reconexão se conectou com sucesso
+        if (reconnectionManager) {
+            reconnectionManager->ResetAttempts();
+        }
     } else {
         connectionData.state = SOCKET_ERROR_STATE;
         connectionData.reconnectAttempts++;
         std::string error = connectionData.webSocketClient->GetLastError();
         AppUtils::WriteLog("SocketManager: Falha na conexão WebSocket: " + error, "ERROR");
+        
+        // Iniciar reconexão automática se habilitada
+        if (reconnectionManager && Config::GetReconnectionEnabled()) {
+            AppUtils::WriteLog("SocketManager: Iniciando processo de reconexão automática", "INFO");
+            reconnectionManager->StartReconnection();
+        }
     }
     
     return connected;
@@ -184,6 +211,11 @@ void SocketManager::Shutdown() {
     
     // Stop any running threads
     connectionData.shouldStop = true;
+    
+    // Stop reconnection system
+    if (reconnectionManager) {
+        reconnectionManager->Shutdown();
+    }
     
     // Disconnect WebSocket
     Disconnect();
@@ -374,6 +406,20 @@ DWORD WINAPI SocketManager::ReceiveThreadProc(LPVOID lpParam) {
         Sleep(10);
     }
     
+    // Verificar se a thread foi finalizada por desconexão inesperada
+    if (!manager->connectionData.shouldStop && 
+        (!manager->connectionData.webSocketClient || !manager->connectionData.webSocketClient->IsConnected())) {
+        
+        AppUtils::WriteLog("SocketManager: Desconexão detectada na thread de recebimento", "WARNING");
+        manager->connectionData.state = SOCKET_ERROR_STATE;
+        
+        // Iniciar reconexão automática se habilitada
+        if (manager->reconnectionManager && Config::GetReconnectionEnabled()) {
+            AppUtils::WriteLog("SocketManager: Iniciando reconexão automática devido à desconexão", "INFO");
+            manager->reconnectionManager->StartReconnection();
+        }
+    }
+    
     AppUtils::WriteLog("SocketManager: Thread de recebimento finalizada", "INFO");
     return 0;
 }
@@ -408,4 +454,109 @@ void SocketManager::ProcessReceivedMessage(const std::string& message) {
     } catch (const std::exception& e) {
         AppUtils::WriteLog("Erro ao processar mensagem: " + std::string(e.what()), "ERROR");
     }
+}
+
+// =============================================================================
+// IMPLEMENTAÇÃO DOS MÉTODOS DE RECONEXÃO AUTOMÁTICA
+// =============================================================================
+
+bool SocketManager::InitializeReconnectionSystem()
+{
+    if (!reconnectionManager) {
+        AppUtils::WriteLog("SocketManager: ReconnectionManager não inicializado", "ERROR");
+        return false;
+    }
+    
+    // Configurar a partir do config
+    ConfigureReconnectionFromConfig();
+    
+    // Inicializar com callback
+    bool success = reconnectionManager->Initialize(ConnectionCallback);
+    
+    if (success) {
+        AppUtils::WriteLog("SocketManager: Sistema de reconexão inicializado com sucesso", "INFO");
+    } else {
+        AppUtils::WriteLog("SocketManager: Falha ao inicializar sistema de reconexão", "ERROR");
+    }
+    
+    return success;
+}
+
+bool SocketManager::IsReconnecting() const
+{
+    if (!reconnectionManager) return false;
+    return reconnectionManager->IsReconnecting();
+}
+
+std::string SocketManager::GetReconnectionStatus() const
+{
+    if (!reconnectionManager) return "Sistema de reconexão não disponível";
+    return reconnectionManager->GetStatusString();
+}
+
+void SocketManager::StopReconnection()
+{
+    if (reconnectionManager) {
+        reconnectionManager->StopReconnection();
+        AppUtils::WriteLog("SocketManager: Sistema de reconexão parado", "INFO");
+    }
+}
+
+bool SocketManager::ForceReconnect()
+{
+    if (!reconnectionManager) {
+        AppUtils::WriteLog("SocketManager: ReconnectionManager não disponível para reconexão forçada", "ERROR");
+        return false;
+    }
+    
+    AppUtils::WriteLog("SocketManager: Iniciando reconexão forçada", "INFO");
+    return reconnectionManager->ForceReconnect();
+}
+
+void SocketManager::ResetReconnectionAttempts()
+{
+    if (reconnectionManager) {
+        reconnectionManager->ResetAttempts();
+        AppUtils::WriteLog("SocketManager: Contador de tentativas de reconexão resetado", "INFO");
+    }
+}
+
+void SocketManager::ConfigureReconnectionFromConfig()
+{
+    if (!reconnectionManager) return;
+    
+    ReconnectionConfig config;
+    config.enabled = Config::GetReconnectionEnabled();
+    config.maxAttempts = Config::GetReconnectionMaxAttempts();
+    config.initialDelay = Config::GetReconnectionInitialDelay();
+    config.maxDelay = Config::GetReconnectionMaxDelay();
+    config.backoffFactor = Config::GetReconnectionBackoffFactor();
+    config.timeout = Config::GetReconnectionTimeout();
+    
+    reconnectionManager->ConfigureSettings(config);
+    AppUtils::WriteLog("SocketManager: Configuração de reconexão carregada do config", "INFO");
+}
+
+bool SocketManager::ConnectionCallback()
+{
+    // Obter instância do SocketManager
+    SocketManager* manager = GetInstance();
+    if (!manager) {
+        AppUtils::WriteLog("SocketManager: Instância não disponível para callback", "ERROR");
+        return false;
+    }
+    
+    // Tentar conectar usando o método existente
+    bool success = manager->ConnectFromConfig();
+    
+    if (success) {
+        AppUtils::WriteLog("SocketManager: Callback de reconexão bem-sucedido", "INFO");
+        // Resetar estado de erro se conectou
+        manager->connectionData.state = SOCKET_CONNECTED;
+    } else {
+        AppUtils::WriteLog("SocketManager: Callback de reconexão falhou", "WARNING");
+        manager->connectionData.state = SOCKET_ERROR_STATE;
+    }
+    
+    return success;
 }

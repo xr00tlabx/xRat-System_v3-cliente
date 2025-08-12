@@ -241,6 +241,82 @@ namespace Config
      * @param apiUrl Nova URL da API
      */
     void SetApiUrl(const std::string &apiUrl);
+
+    // =============================================================================
+    // CONFIGURAÇÕES DE RECONEXÃO
+    // =============================================================================
+
+    /**
+     * @brief Obtém se a reconexão automática está habilitada
+     * @return true se reconexão automática está habilitada
+     */
+    bool GetReconnectionEnabled();
+
+    /**
+     * @brief Define se a reconexão automática está habilitada
+     * @param enabled Se deve habilitar reconexão automática
+     */
+    void SetReconnectionEnabled(bool enabled);
+
+    /**
+     * @brief Obtém número máximo de tentativas de reconexão
+     * @return Número máximo de tentativas
+     */
+    int GetReconnectionMaxAttempts();
+
+    /**
+     * @brief Define número máximo de tentativas de reconexão
+     * @param maxAttempts Número máximo de tentativas
+     */
+    void SetReconnectionMaxAttempts(int maxAttempts);
+
+    /**
+     * @brief Obtém delay inicial entre tentativas de reconexão (ms)
+     * @return Delay inicial em milissegundos
+     */
+    int GetReconnectionInitialDelay();
+
+    /**
+     * @brief Define delay inicial entre tentativas de reconexão
+     * @param initialDelay Delay inicial em milissegundos
+     */
+    void SetReconnectionInitialDelay(int initialDelay);
+
+    /**
+     * @brief Obtém delay máximo entre tentativas de reconexão (ms)
+     * @return Delay máximo em milissegundos
+     */
+    int GetReconnectionMaxDelay();
+
+    /**
+     * @brief Define delay máximo entre tentativas de reconexão
+     * @param maxDelay Delay máximo em milissegundos
+     */
+    void SetReconnectionMaxDelay(int maxDelay);
+
+    /**
+     * @brief Obtém fator de backoff exponencial
+     * @return Fator de multiplicação para backoff
+     */
+    double GetReconnectionBackoffFactor();
+
+    /**
+     * @brief Define fator de backoff exponencial
+     * @param backoffFactor Fator de multiplicação para backoff
+     */
+    void SetReconnectionBackoffFactor(double backoffFactor);
+
+    /**
+     * @brief Obtém timeout para tentativas de conexão (ms)
+     * @return Timeout em milissegundos
+     */
+    int GetReconnectionTimeout();
+
+    /**
+     * @brief Define timeout para tentativas de conexão
+     * @param timeout Timeout em milissegundos
+     */
+    void SetReconnectionTimeout(int timeout);
 }
 
 #endif // CONFIG_H

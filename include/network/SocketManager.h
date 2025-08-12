@@ -6,6 +6,7 @@
 #include <ws2tcpip.h>
 #include <string>
 #include "WebSocketClient.h"
+#include "ReconnectionManager.h"
 
 // Link with Winsock library
 #pragma comment(lib, "ws2_32.lib")
@@ -41,6 +42,7 @@ namespace Network {
         ConnectionData connectionData;
         CRITICAL_SECTION criticalSection;
         bool wsaInitialized;
+        ReconnectionManager* reconnectionManager;
 
         // Private constructor for singleton
         SocketManager();
@@ -53,6 +55,9 @@ namespace Network {
         bool AttemptConnection();
         void HandleConnectionError(const std::string& errorMsg);
         void ProcessReceivedMessage(const std::string& message);
+        
+        // Callback para ReconnectionManager
+        static bool ConnectionCallback();
         
     public:
         // Singleton instance
@@ -91,6 +96,49 @@ namespace Network {
         std::string GetLastSocketError() const;
         void LogConnectionStatus(const std::string& status);
         bool ParseWebSocketUrl(const std::string& url, std::string& host, int& port); // Nova função para parser de URL
+        
+        // =============================================================================
+        // MÉTODOS DE RECONEXÃO AUTOMÁTICA
+        // =============================================================================
+        
+        /**
+         * @brief Inicializa sistema de reconexão automática
+         * @return true se inicializado com sucesso
+         */
+        bool InitializeReconnectionSystem();
+        
+        /**
+         * @brief Verifica se está tentando reconectar
+         * @return true se em processo de reconexão
+         */
+        bool IsReconnecting() const;
+        
+        /**
+         * @brief Obtém status da reconexão
+         * @return String com status da reconexão
+         */
+        std::string GetReconnectionStatus() const;
+        
+        /**
+         * @brief Para sistema de reconexão
+         */
+        void StopReconnection();
+        
+        /**
+         * @brief Força uma tentativa de reconexão imediata
+         * @return true se reconectou com sucesso
+         */
+        bool ForceReconnect();
+        
+        /**
+         * @brief Reseta contador de tentativas de reconexão
+         */
+        void ResetReconnectionAttempts();
+        
+        /**
+         * @brief Configura parâmetros de reconexão a partir do config
+         */
+        void ConfigureReconnectionFromConfig();
     };
 
 } // namespace Network
