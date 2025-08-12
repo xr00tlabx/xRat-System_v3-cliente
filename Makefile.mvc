@@ -1,0 +1,228 @@
+# =============================================================================
+# Makefile para Main Application - Arquitetura MVC
+# =============================================================================
+# Projeto: Main C++ Application  
+# Descrição: Makefile para compilação modular
+# Autor: Desenvolvedor
+# Data: 11/08/2025
+# =============================================================================
+
+# Configurações do compilador
+CXX = g++
+CXXFLAGS = -std=c++11 -Wall -Wextra -O2 -DUNICODE -D_UNICODE
+LDFLAGS = -lgdi32 -luser32 -lkernel32 -lcomctl32
+
+# Diretórios
+SRC_DIR = src
+INCLUDE_DIR = include
+OBJ_DIR = obj
+BIN_DIR = bin
+
+# Nome do executável
+TARGET = $(BIN_DIR)/main.exe
+
+# Arquivos fonte organizados por módulo
+MAIN_SOURCES = $(SRC_DIR)/main_new.cpp
+UTILS_SOURCES = $(SRC_DIR)/utils/AppUtils.cpp $(SRC_DIR)/utils/WindowMonitor.cpp
+FORMS_SOURCES = $(SRC_DIR)/forms/MainForm.cpp
+CONTROLLERS_SOURCES = $(SRC_DIR)/controllers/MainController.cpp
+
+# Todos os arquivos fonte
+SOURCES = $(MAIN_SOURCES) $(UTILS_SOURCES) $(FORMS_SOURCES) $(CONTROLLERS_SOURCES)
+
+# Arquivos objeto correspondentes
+MAIN_OBJECTS = $(OBJ_DIR)/main_new.o
+UTILS_OBJECTS = $(OBJ_DIR)/utils/AppUtils.o $(OBJ_DIR)/utils/WindowMonitor.o
+FORMS_OBJECTS = $(OBJ_DIR)/forms/MainForm.o
+CONTROLLERS_OBJECTS = $(OBJ_DIR)/controllers/MainController.o
+
+# Todos os arquivos objeto
+OBJECTS = $(MAIN_OBJECTS) $(UTILS_OBJECTS) $(FORMS_OBJECTS) $(CONTROLLERS_OBJECTS)
+
+# Diretórios de include
+INCLUDE_PATHS = -I$(INCLUDE_DIR)
+
+# =============================================================================
+# REGRAS PRINCIPAIS
+# =============================================================================
+
+# Regra padrão
+all: dirs $(TARGET)
+
+# Criar diretórios necessários
+dirs:
+	@if not exist "$(OBJ_DIR)" mkdir "$(OBJ_DIR)"
+	@if not exist "$(OBJ_DIR)\utils" mkdir "$(OBJ_DIR)\utils"
+	@if not exist "$(OBJ_DIR)\forms" mkdir "$(OBJ_DIR)\forms"
+	@if not exist "$(OBJ_DIR)\controllers" mkdir "$(OBJ_DIR)\controllers"
+	@if not exist "$(BIN_DIR)" mkdir "$(BIN_DIR)"
+
+# Compilar o executável final
+$(TARGET): $(OBJECTS)
+	@echo [LINK] Linkando executável final...
+	$(CXX) $(OBJECTS) -o $(TARGET) $(LDFLAGS)
+	@echo [SUCESSO] Executável criado: $(TARGET)
+
+# =============================================================================
+# REGRAS DE COMPILAÇÃO POR MÓDULO
+# =============================================================================
+
+# Módulo principal
+$(OBJ_DIR)/main_new.o: $(SRC_DIR)/main_new.cpp
+	@echo [BUILD] Compilando módulo principal...
+	$(CXX) $(CXXFLAGS) $(INCLUDE_PATHS) -c $< -o $@
+
+# Módulo de utilitários
+$(OBJ_DIR)/utils/AppUtils.o: $(SRC_DIR)/utils/AppUtils.cpp $(INCLUDE_DIR)/utils/AppUtils.h
+	@echo [BUILD] Compilando módulo Utils...
+	$(CXX) $(CXXFLAGS) $(INCLUDE_PATHS) -c $< -o $@
+
+$(OBJ_DIR)/utils/WindowMonitor.o: $(SRC_DIR)/utils/WindowMonitor.cpp $(INCLUDE_DIR)/utils/WindowMonitor.h
+	@echo [BUILD] Compilando módulo WindowMonitor...
+	$(CXX) $(CXXFLAGS) $(INCLUDE_PATHS) -c $< -o $@
+
+# Módulo de formulários
+$(OBJ_DIR)/forms/MainForm.o: $(SRC_DIR)/forms/MainForm.cpp $(INCLUDE_DIR)/forms/MainForm.h
+	@echo [BUILD] Compilando módulo Forms...
+	$(CXX) $(CXXFLAGS) $(INCLUDE_PATHS) -c $< -o $@
+
+# Módulo de controladores
+$(OBJ_DIR)/controllers/MainController.o: $(SRC_DIR)/controllers/MainController.cpp $(INCLUDE_DIR)/controllers/MainController.h
+	@echo [BUILD] Compilando módulo Controllers...
+	$(CXX) $(CXXFLAGS) $(INCLUDE_PATHS) -c $< -o $@
+
+# =============================================================================
+# REGRAS DE LIMPEZA E UTILITÁRIAS
+# =============================================================================
+
+# Limpeza completa
+clean:
+	@echo [CLEAN] Removendo arquivos temporários...
+	@if exist "$(OBJ_DIR)" rmdir /s /q "$(OBJ_DIR)"
+	@if exist "$(BIN_DIR)" rmdir /s /q "$(BIN_DIR)"
+	@echo [CLEAN] Limpeza concluída.
+
+# Limpeza apenas dos objetos
+clean-obj:
+	@echo [CLEAN] Removendo apenas arquivos objeto...
+	@if exist "$(OBJ_DIR)" rmdir /s /q "$(OBJ_DIR)"
+	@echo [CLEAN] Objetos removidos.
+
+# Recompilação completa
+rebuild: clean all
+	@echo [REBUILD] Recompilação completa finalizada.
+
+# Executar o programa
+run: $(TARGET)
+	@echo [RUN] Executando aplicação...
+	@cd $(BIN_DIR) && main.exe
+
+# Executar em modo debug
+run-debug: $(TARGET)
+	@echo [DEBUG] Executando em modo debug...
+	@cd $(BIN_DIR) && gdb main.exe
+
+# =============================================================================
+# REGRAS DE INSTALAÇÃO E DISTRIBUIÇÃO
+# =============================================================================
+
+# Instalar (copiar para diretório do sistema)
+install: $(TARGET)
+	@echo [INSTALL] Instalando aplicação...
+	@copy "$(TARGET)" "C:\Program Files\MainApp\" 2>nul || echo [INFO] Copiando para diretório local...
+	@if not exist "dist" mkdir "dist"
+	@copy "$(TARGET)" "dist\"
+	@echo [INSTALL] Instalação concluída.
+
+# Criar pacote de distribuição
+dist: $(TARGET)
+	@echo [DIST] Criando pacote de distribuição...
+	@if not exist "dist" mkdir "dist"
+	@copy "$(TARGET)" "dist\"
+	@copy "README.md" "dist\" 2>nul || echo [INFO] README não encontrado
+	@copy "docs\*" "dist\docs\" 2>nul || echo [INFO] Docs não encontrados
+	@echo [DIST] Pacote criado em: dist/
+
+# =============================================================================
+# REGRAS DE DESENVOLVIMENTO
+# =============================================================================
+
+# Compilação com debug
+debug: CXXFLAGS += -g -D_DEBUG
+debug: clean all
+	@echo [DEBUG] Versão debug compilada.
+
+# Compilação otimizada para release
+release: CXXFLAGS += -O3 -DNDEBUG -s
+release: clean all
+	@echo [RELEASE] Versão release compilada.
+
+# Verificar dependências
+deps:
+	@echo [DEPS] Verificando dependências...
+	@where g++ >nul 2>&1 && echo [OK] GCC encontrado || echo [ERRO] GCC não encontrado
+	@where make >nul 2>&1 && echo [OK] Make encontrado || echo [ERRO] Make não encontrado
+	@echo [DEPS] Verificação concluída.
+
+# Mostrar informações do projeto
+info:
+	@echo ================================
+	@echo   Main Application - Info
+	@echo ================================
+	@echo Projeto: Main C++ Application
+	@echo Versão: 1.0.0
+	@echo Arquitetura: MVC (Model-View-Controller)
+	@echo Compilador: $(CXX)
+	@echo Flags: $(CXXFLAGS)
+	@echo Target: $(TARGET)
+	@echo ================================
+	@echo Módulos:
+	@echo   - Main: Ponto de entrada
+	@echo   - Utils: Funções utilitárias  
+	@echo   - Forms: Interface gráfica
+	@echo   - Controllers: Lógica de negócio
+	@echo ================================
+
+# Mostrar ajuda
+help:
+	@echo ================================
+	@echo   Main Application - Ajuda
+	@echo ================================
+	@echo Comandos disponíveis:
+	@echo   make all       - Compilar tudo
+	@echo   make clean     - Limpar arquivos
+	@echo   make rebuild   - Recompilar tudo
+	@echo   make run       - Executar programa
+	@echo   make debug     - Compilar com debug
+	@echo   make release   - Compilar release
+	@echo   make install   - Instalar aplicação
+	@echo   make dist      - Criar distribuição
+	@echo   make deps      - Verificar dependências
+	@echo   make info      - Informações do projeto
+	@echo   make help      - Esta ajuda
+	@echo ================================
+
+# =============================================================================
+# CONFIGURAÇÕES ESPECIAIS
+# =============================================================================
+
+# Marcar regras que não são arquivos
+.PHONY: all clean clean-obj rebuild run run-debug install dist debug release deps info help dirs
+
+# Não deletar arquivos intermediários
+.PRECIOUS: $(OBJECTS)
+
+# Configuração para Windows
+ifeq ($(OS),Windows_NT)
+    # Comandos específicos do Windows já estão sendo usados
+    RM = del /f /q
+    RMDIR = rmdir /s /q
+    MKDIR = mkdir
+    COPY = copy
+else
+    # Comandos para Unix/Linux (caso alguém compile no WSL)
+    RM = rm -f
+    RMDIR = rm -rf
+    MKDIR = mkdir -p
+    COPY = cp
+endif

@@ -1,0 +1,262 @@
+// =============================================================================
+// MainController Header - Controlador Principal
+// =============================================================================
+// Projeto: Main C++ Application
+// Arquivo: controllers/MainController.h
+// Descrição: Classe responsável pela lógica de negócio
+// Autor: Desenvolvedor
+// Data: 11/08/2025
+// =============================================================================
+
+#ifndef MAIN_CONTROLLER_H
+#define MAIN_CONTROLLER_H
+
+#include <windows.h>
+#include <string>
+#include <memory>
+
+// Forward declarations
+class MainForm;
+
+// =============================================================================
+// ESTRUTURA DE DADOS DA APLICAÇÃO
+// =============================================================================
+
+struct ApplicationData
+{
+    std::string appName;
+    std::string appVersion;
+    std::string appAuthor;
+    std::string appDescription;
+    std::string buildDate;
+    std::string buildTime;
+
+    bool isDebugMode;
+    bool isInitialized;
+    int clickCount;
+
+    ApplicationData() : appName("Main Application"),
+                        appVersion("1.0.0"),
+                        appAuthor("Desenvolvedor C++"),
+                        appDescription("Aplicação Windows desenvolvida em C++"),
+                        buildDate(__DATE__),
+                        buildTime(__TIME__),
+                        isDebugMode(false),
+                        isInitialized(false),
+                        clickCount(0) {}
+};
+
+// =============================================================================
+// CLASSE MAINCONTROLLER
+// =============================================================================
+
+class MainController
+{
+private:
+    static std::unique_ptr<ApplicationData> appData;
+    static MainForm *mainForm;
+    static HINSTANCE hInstance;
+
+public:
+    // =============================================================================
+    // MÉTODOS DE INICIALIZAÇÃO
+    // =============================================================================
+
+    /**
+     * @brief Inicializa o controller
+     * @param hInst Instância da aplicação
+     * @return true se inicializado com sucesso
+     */
+    static bool Initialize(HINSTANCE hInst);
+
+    /**
+     * @brief Finaliza o controller e limpa recursos
+     */
+    static void Shutdown();
+
+    /**
+     * @brief Verifica se o controller foi inicializado
+     * @return true se inicializado
+     */
+    static bool IsInitialized();
+
+    // =============================================================================
+    // MÉTODOS DE CONTROLE DA APLICAÇÃO
+    // =============================================================================
+
+    /**
+     * @brief Inicia a aplicação
+     * @param nCmdShow Modo de exibição da janela
+     * @return true se iniciada com sucesso
+     */
+    static bool StartApplication(int nCmdShow);
+
+    /**
+     * @brief Executa o loop principal da aplicação
+     * @return Código de saída da aplicação
+     */
+    static int RunMessageLoop();
+
+    /**
+     * @brief Solicita fechamento da aplicação
+     * @return true se pode fechar, false caso contrário
+     */
+    static bool RequestShutdown();
+
+    /**
+     * @brief Exibe mensagem de boas-vindas
+     */
+    static void ShowWelcomeMessage();
+
+    // =============================================================================
+    // HANDLERS DE EVENTOS (CHAMADOS PELO FORM)
+    // =============================================================================
+
+    /**
+     * @brief Manipula clique no botão Hello
+     */
+    static void OnButtonHelloClicked();
+
+    /**
+     * @brief Manipula clique no botão About
+     */
+    static void OnButtonAboutClicked();
+
+    /**
+     * @brief Manipula clique no botão Config
+     */
+    static void OnButtonConfigClicked();
+
+    /**
+     * @brief Manipula clique no botão Exit
+     */
+    static void OnButtonExitClicked();
+
+    /**
+     * @brief Manipula tentativa de fechamento da janela
+     * @return true se pode fechar, false caso contrário
+     */
+    static bool OnWindowClosing();
+
+    // =============================================================================
+    // MÉTODOS DE DADOS DA APLICAÇÃO
+    // =============================================================================
+
+    /**
+     * @brief Obtém dados da aplicação
+     * @return Ponteiro para os dados da aplicação
+     */
+    static ApplicationData *GetApplicationData();
+
+    /**
+     * @brief Obtém nome da aplicação
+     * @return Nome da aplicação
+     */
+    static std::string GetApplicationName();
+
+    /**
+     * @brief Obtém versão da aplicação
+     * @return Versão da aplicação
+     */
+    static std::string GetApplicationVersion();
+
+    /**
+     * @brief Obtém informações completas da aplicação
+     * @return String com informações formatadas
+     */
+    static std::string GetApplicationInfo();
+
+    // =============================================================================
+    // MÉTODOS DE CONFIGURAÇÃO
+    // =============================================================================
+
+    /**
+     * @brief Habilita/desabilita modo debug
+     * @param enabled Estado do modo debug
+     */
+    static void SetDebugMode(bool enabled);
+
+    /**
+     * @brief Verifica se está em modo debug
+     * @return true se em modo debug
+     */
+    static bool IsDebugMode();
+
+    /**
+     * @brief Incrementa contador de cliques
+     * @return Novo valor do contador
+     */
+    static int IncrementClickCount();
+
+    /**
+     * @brief Reseta contador de cliques
+     */
+    static void ResetClickCount();
+
+    // =============================================================================
+    // MÉTODOS DE LOGGING E DEBUG
+    // =============================================================================
+
+    /**
+     * @brief Registra evento no log
+     * @param event Descrição do evento
+     * @param level Nível do log (INFO, WARNING, ERROR)
+     */
+    static void LogEvent(const std::string &event, const std::string &level = "INFO");
+
+    /**
+     * @brief Exibe informações de debug
+     */
+    static void ShowDebugInfo();
+
+    /**
+     * @brief Salva dados da aplicação em arquivo
+     * @param filename Nome do arquivo (opcional)
+     * @return true se salvou com sucesso
+     */
+    static bool SaveApplicationState(const std::string &filename = "");
+
+    /**
+     * @brief Carrega dados da aplicação de arquivo
+     * @param filename Nome do arquivo (opcional)
+     * @return true se carregou com sucesso
+     */
+    static bool LoadApplicationState(const std::string &filename = "");
+
+private:
+    // =============================================================================
+    // MÉTODOS PRIVADOS
+    // =============================================================================
+
+    /**
+     * @brief Configura dados iniciais da aplicação
+     */
+    static void SetupApplicationData();
+
+    /**
+     * @brief Valida estado da aplicação
+     * @return true se estado é válido
+     */
+    static bool ValidateApplicationState();
+
+    /**
+     * @brief Processa eventos especiais
+     * @param eventType Tipo do evento
+     * @param eventData Dados do evento
+     */
+    static void ProcessSpecialEvent(const std::string &eventType, const std::string &eventData);
+
+    /**
+     * @brief Formata string de informações do sistema
+     * @return String formatada com informações do sistema
+     */
+    static std::string FormatSystemInfo();
+
+    /**
+     * @brief Formata string de estatísticas da aplicação
+     * @return String formatada com estatísticas
+     */
+    static std::string FormatApplicationStats();
+};
+
+#endif // MAIN_CONTROLLER_H

@@ -1,0 +1,54 @@
+# Arquivos de build e temporários
+bin/
+obj/
+build/
+*.exe
+*.o
+*.obj
+*.pdb
+*.ilk
+
+# Logs
+*.log
+application.log
+
+# Visual Studio
+.vs/
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+*.sln
+*.suo
+Debug/
+Release/
+x64/
+
+# Code::Blocks
+*.cbp
+*.layout
+*.depend
+
+# Dev-C++
+*.dev
+
+# MinGW
+*.a
+
+# Backup files
+*.bak
+*.tmp
+*~
+
+# OS specific
+Thumbs.db
+.DS_Store
+desktop.ini
+
+# IDE
+.vscode/settings.json
+.vscode/launch.json
+.vscode/tasks.json
+.vscode/c_cpp_properties.json
+
+# Manter apenas as instruções do Copilot
+!.github-copilot-instructions.md
