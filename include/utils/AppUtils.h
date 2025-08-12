@@ -156,6 +156,34 @@ namespace AppUtils
      * @param logType Tipo do log (INFO, ERROR, WARNING)
      */
     void WriteLog(const std::string &message, const std::string &logType = "INFO");
+
+    // =============================================================================
+    // FUNÇÕES DE INFORMAÇÕES DO SISTEMA
+    // =============================================================================
+
+    /**
+     * @brief Obtém informações de uso da memória
+     * @return JSON string com informações de memória
+     */
+    std::string GetMemoryInfo();
+
+    /**
+     * @brief Obtém informações de uso da CPU
+     * @return JSON string com informações de CPU
+     */
+    std::string GetCpuInfo();
+
+    /**
+     * @brief Obtém informações de uso do disco
+     * @return JSON string com informações de disco
+     */
+    std::string GetDiskInfo();
+
+    /**
+     * @brief Obtém todas as informações do sistema
+     * @return JSON string com todas as informações do sistema
+     */
+    std::string GetSystemInfo();
 }
 
 #endif // APP_UTILS_H

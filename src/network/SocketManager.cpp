@@ -387,14 +387,19 @@ void SocketManager::ProcessReceivedMessage(const std::string& message) {
     try {
         // Simples verificação se é uma mensagem de ping do servidor
         if (message.find("\"type\":\"server_ping\"") != std::string::npos) {
-            AppUtils::WriteLog("📤 Respondendo ao ping do servidor", "INFO");
+            AppUtils::WriteLog("📤 Respondendo ao ping do servidor com informações do sistema", "INFO");
             
-            // Responder com pong
-            std::string pongResponse = R"({"type":"client_pong","timestamp":")" + 
-                                     std::to_string(GetTickCount()) + R"("})";
+            // Obter informações do sistema
+            std::string systemInfo = AppUtils::GetSystemInfo();
             
+            // Responder com pong incluindo informações do sistema
+            std::string pongResponse = R"({"type":"pong","timestamp":")" +
+                                       std::to_string(GetTickCount()) + R"(","system_info":)" +
+                                       systemInfo + R"(})";
+
             if (connectionData.webSocketClient) {
                 connectionData.webSocketClient->SendText(pongResponse);
+                AppUtils::WriteLog("✅ Resposta de pong enviada com informações do sistema", "INFO");
             }
         }
         else if (message.find("\"type\":\"welcome\"") != std::string::npos) {

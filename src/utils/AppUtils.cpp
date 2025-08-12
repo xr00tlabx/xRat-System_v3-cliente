@@ -13,6 +13,7 @@
 #include <sstream>
 #include <fstream>
 #include <algorithm>
+#include <iomanip>
 
 namespace AppUtils
 {
@@ -244,5 +245,174 @@ namespace AppUtils
         {
             // Se falhar ao escrever no log, não fazer nada para evitar loops
         }
+    }
+
+    // =============================================================================
+    // IMPLEMENTAÇÃO DE FUNÇÕES DE INFORMAÇÕES DO SISTEMA
+    // =============================================================================
+
+    std::string GetMemoryInfo()
+    {
+        try
+        {
+            MEMORYSTATUSEX memInfo;
+            memInfo.dwLength = sizeof(MEMORYSTATUSEX);
+            
+            if (GlobalMemoryStatusEx(&memInfo))
+            {
+                // Converter bytes para MB
+                DWORDLONG totalPhysMB = memInfo.ullTotalPhys / (1024 * 1024);
+                DWORDLONG availPhysMB = memInfo.ullAvailPhys / (1024 * 1024);
+                DWORDLONG usedPhysMB = totalPhysMB - availPhysMB;
+                DWORDLONG totalVirtualMB = memInfo.ullTotalVirtual / (1024 * 1024);
+                DWORDLONG availVirtualMB = memInfo.ullAvailVirtual / (1024 * 1024);
+                
+                std::ostringstream oss;
+                oss << "{"
+                    << "\"total_mb\":" << totalPhysMB << ","
+                    << "\"used_mb\":" << usedPhysMB << ","
+                    << "\"available_mb\":" << availPhysMB << ","
+                    << "\"usage_percent\":" << memInfo.dwMemoryLoad << ","
+                    << "\"virtual_total_mb\":" << totalVirtualMB << ","
+                    << "\"virtual_available_mb\":" << availVirtualMB
+                    << "}";
+                
+                return oss.str();
+            }
+        }
+        catch (...)
+        {
+            WriteLog("Erro ao obter informações de memória", "ERROR");
+        }
+        
+        return "{\"error\":\"Falha ao obter informações de memória\"}";
+    }
+
+    std::string GetCpuInfo()
+    {
+        try
+        {
+            // Obter informações básicas do processador
+            SYSTEM_INFO sysInfo;
+            GetSystemInfo(&sysInfo);
+            
+            // Obter informações de performance (uso de CPU)
+            static FILETIME prevSysIdle, prevSysKernel, prevSysUser;
+            FILETIME sysIdle, sysKernel, sysUser;
+            
+            if (GetSystemTimes(&sysIdle, &sysKernel, &sysUser))
+            {
+                // Calcular diferenças para obter percentual de uso
+                ULARGE_INTEGER idle, kernel, user;
+                ULARGE_INTEGER prevIdle, prevKernel, prevUser;
+                
+                idle.LowPart = sysIdle.dwLowDateTime;
+                idle.HighPart = sysIdle.dwHighDateTime;
+                kernel.LowPart = sysKernel.dwLowDateTime;
+                kernel.HighPart = sysKernel.dwHighDateTime;
+                user.LowPart = sysUser.dwLowDateTime;
+                user.HighPart = sysUser.dwHighDateTime;
+                
+                prevIdle.LowPart = prevSysIdle.dwLowDateTime;
+                prevIdle.HighPart = prevSysIdle.dwHighDateTime;
+                prevKernel.LowPart = prevSysKernel.dwLowDateTime;
+                prevKernel.HighPart = prevSysKernel.dwHighDateTime;
+                prevUser.LowPart = prevSysUser.dwLowDateTime;
+                prevUser.HighPart = prevSysUser.dwHighDateTime;
+                
+                // Salvar valores atuais para próxima medição
+                prevSysIdle = sysIdle;
+                prevSysKernel = sysKernel;
+                prevSysUser = sysUser;
+                
+                // Calcular diferenças
+                ULONGLONG idleDiff = idle.QuadPart - prevIdle.QuadPart;
+                ULONGLONG kernelDiff = kernel.QuadPart - prevKernel.QuadPart;
+                ULONGLONG userDiff = user.QuadPart - prevUser.QuadPart;
+                ULONGLONG totalDiff = kernelDiff + userDiff;
+                
+                double cpuUsage = 0.0;
+                if (totalDiff > 0)
+                {
+                    cpuUsage = ((double)(totalDiff - idleDiff) / totalDiff) * 100.0;
+                }
+                
+                std::ostringstream oss;
+                oss << "{"
+                    << "\"cores\":" << sysInfo.dwNumberOfProcessors << ","
+                    << "\"architecture\":\"" << (sysInfo.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_AMD64 ? "x64" : "x86") << "\","
+                    << "\"usage_percent\":" << std::fixed << std::setprecision(2) << cpuUsage
+                    << "}";
+                
+                return oss.str();
+            }
+        }
+        catch (...)
+        {
+            WriteLog("Erro ao obter informações de CPU", "ERROR");
+        }
+        
+        return "{\"error\":\"Falha ao obter informações de CPU\"}";
+    }
+
+    std::string GetDiskInfo()
+    {
+        try
+        {
+            // Obter informações do disco C: (sistema)
+            ULARGE_INTEGER freeBytesAvailable, totalNumberOfBytes, totalNumberOfFreeBytes;
+            
+            if (GetDiskFreeSpaceEx("C:\\", &freeBytesAvailable, &totalNumberOfBytes, &totalNumberOfFreeBytes))
+            {
+                // Converter bytes para GB
+                double totalGB = (double)totalNumberOfBytes.QuadPart / (1024.0 * 1024.0 * 1024.0);
+                double freeGB = (double)totalNumberOfFreeBytes.QuadPart / (1024.0 * 1024.0 * 1024.0);
+                double usedGB = totalGB - freeGB;
+                double usagePercent = (usedGB / totalGB) * 100.0;
+                
+                std::ostringstream oss;
+                oss << "{"
+                    << "\"drive\":\"C:\","
+                    << "\"total_gb\":" << std::fixed << std::setprecision(2) << totalGB << ","
+                    << "\"used_gb\":" << std::fixed << std::setprecision(2) << usedGB << ","
+                    << "\"free_gb\":" << std::fixed << std::setprecision(2) << freeGB << ","
+                    << "\"usage_percent\":" << std::fixed << std::setprecision(2) << usagePercent
+                    << "}";
+                
+                return oss.str();
+            }
+        }
+        catch (...)
+        {
+            WriteLog("Erro ao obter informações de disco", "ERROR");
+        }
+        
+        return "{\"error\":\"Falha ao obter informações de disco\"}";
+    }
+
+    std::string GetSystemInfo()
+    {
+        try
+        {
+            std::string memInfo = GetMemoryInfo();
+            std::string cpuInfo = GetCpuInfo();
+            std::string diskInfo = GetDiskInfo();
+            
+            std::ostringstream oss;
+            oss << "{"
+                << "\"timestamp\":\"" << GetCurrentDateTime() << "\","
+                << "\"memory\":" << memInfo << ","
+                << "\"cpu\":" << cpuInfo << ","
+                << "\"disk\":" << diskInfo
+                << "}";
+            
+            return oss.str();
+        }
+        catch (...)
+        {
+            WriteLog("Erro ao obter informações do sistema", "ERROR");
+        }
+        
+        return "{\"error\":\"Falha ao obter informações do sistema\"}";
     }
 }

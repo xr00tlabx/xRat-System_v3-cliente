@@ -8,7 +8,7 @@
 const WebSocket = require('ws');
 
 // Configuração do cliente de teste
-const SERVER_URL = 'ws://192.168.10.101:8080/cli/ws';
+const SERVER_URL = 'ws://192.168.10.101:3334/cli/ws';
 const CLIENT_NAME = 'TestClient_JS';
 
 console.log('=============================================================================');

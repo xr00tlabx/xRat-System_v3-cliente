@@ -90,8 +90,8 @@ mingw32-make run
 
 ### Mensagens Suportadas
 - **welcome** - Mensagem de boas-vindas do servidor
-- **server_ping** - Teste de conectividade (responde com client_pong)
-- **client_pong** - Resposta ao ping do servidor
+- **server_ping** - Teste de conectividade (responde com pong)
+- **pong** - Resposta ao ping do servidor
 - **echo** - Eco de mensagens enviadas pelo cliente
 
 ### Exemplo de Mensagem
@@ -121,7 +121,7 @@ O sistema registra automaticamente:
 ```
 [Tue Aug 12 01:44:09 2025] [INFO] WebSocketClient: Mensagem recebida: {"type":"server_ping"...}
 [Tue Aug 12 01:44:09 2025] [INFO] 📤 Respondendo ao ping do servidor
-[Tue Aug 12 01:44:09 2025] [INFO] WebSocketClient: Mensagem enviada: {"type":"client_pong"...}
+[Tue Aug 12 01:44:09 2025] [INFO] WebSocketClient: Mensagem enviada: {"type":"pong"...}
 ```
 
 Verifique `bin/application.log` para acompanhar toda a atividade em tempo real.

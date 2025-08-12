@@ -5,6 +5,26 @@ Todas as mudanças notáveis neste projeto serão documentadas neste arquivo.
 O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/),
 e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
+## [1.0.3] - 2025-08-12
+
+### Adicionado
+- **FEATURE**: Sistema de informações do sistema no ping/pong
+  - Cliente agora envia informações de memória, CPU e disco quando responde ao ping do servidor
+  - Funções implementadas: `GetMemoryInfo()`, `GetCpuInfo()`, `GetDiskInfo()`, `GetSystemInfo()`
+  - Resposta JSON estruturada com informações detalhadas do sistema
+  - Logs melhorados para indicar envio de informações do sistema
+  - Documentação completa em `FEATURE_SYSTEM_INFO.md`
+
+### Melhorado
+- SocketManager agora inclui informações do sistema na resposta de pong
+- AppUtils expandido com funções de coleta de informações de hardware
+- Melhor tratamento de erros e logging para operações de sistema
+
+### Técnico
+- Uso de APIs nativas do Windows: `GlobalMemoryStatusEx`, `GetSystemInfo`, `GetSystemTimes`, `GetDiskFreeSpaceEx`
+- Formato JSON estruturado para fácil parsing no servidor
+- Implementação eficiente com tratamento de erros robusto
+
 ## [1.0.2] - 2025-08-11
 
 ### Corrigido
