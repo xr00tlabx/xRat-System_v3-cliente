@@ -144,7 +144,7 @@ public:
      * @brief Atualiza o texto do label de status
      * @param text Novo texto
      */
-    static void UpdateStatusText(const char *text);
+    static void UpdateStatusText(const wchar_t *text);
 
     /**
      * @brief Habilita/desabilita controles

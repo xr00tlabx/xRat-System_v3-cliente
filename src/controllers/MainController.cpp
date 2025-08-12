@@ -165,7 +165,7 @@ void MainController::OnButtonHelloClicked()
     AppUtils::ShowInfoMessage(ss.str().c_str(), "Informações do Sistema");
 
     // Atualizar status no formulário
-    MainForm::UpdateStatusText("Informações exibidas com sucesso!");
+    MainForm::UpdateStatusText(L"Informações exibidas com sucesso!");
 
     LogEvent("Informações da aplicação exibidas", "INFO");
 }
@@ -213,7 +213,7 @@ void MainController::OnButtonConfigClicked()
 
     AppUtils::ShowInfoMessage(ss.str().c_str(), "Configurações");
 
-    MainForm::UpdateStatusText(appData->isDebugMode ? "Modo Debug ATIVADO" : "Modo Debug DESATIVADO");
+    MainForm::UpdateStatusText(appData->isDebugMode ? L"Modo Debug ATIVADO" : L"Modo Debug DESATIVADO");
 
     LogEvent("Modo debug alterado para: " + std::string(appData->isDebugMode ? "ON" : "OFF"), "CONFIG");
 }

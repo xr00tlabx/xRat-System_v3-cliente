@@ -90,22 +90,43 @@ namespace AppUtils
 
     void ShowErrorMessage(const char *message, const char *title)
     {
-        MessageBox(NULL, message, title, MB_OK | MB_ICONERROR);
+        MessageBoxA(NULL, message, title, MB_OK | MB_ICONERROR);
+    }
+
+    void ShowErrorMessage(const wchar_t *message, const wchar_t *title)
+    {
+        MessageBoxW(NULL, message, title, MB_OK | MB_ICONERROR);
     }
 
     void ShowInfoMessage(const char *message, const char *title)
     {
-        MessageBox(NULL, message, title, MB_OK | MB_ICONINFORMATION);
+        MessageBoxA(NULL, message, title, MB_OK | MB_ICONINFORMATION);
+    }
+
+    void ShowInfoMessage(const wchar_t *message, const wchar_t *title)
+    {
+        MessageBoxW(NULL, message, title, MB_OK | MB_ICONINFORMATION);
     }
 
     void ShowWarningMessage(const char *message, const char *title)
     {
-        MessageBox(NULL, message, title, MB_OK | MB_ICONWARNING);
+        MessageBoxA(NULL, message, title, MB_OK | MB_ICONWARNING);
+    }
+
+    void ShowWarningMessage(const wchar_t *message, const wchar_t *title)
+    {
+        MessageBoxW(NULL, message, title, MB_OK | MB_ICONWARNING);
     }
 
     bool ConfirmAction(const char *message, const char *title)
     {
-        int result = MessageBox(NULL, message, title, MB_YESNO | MB_ICONQUESTION);
+        int result = MessageBoxA(NULL, message, title, MB_YESNO | MB_ICONQUESTION);
+        return (result == IDYES);
+    }
+
+    bool ConfirmAction(const wchar_t *message, const wchar_t *title)
+    {
+        int result = MessageBoxW(NULL, message, title, MB_YESNO | MB_ICONQUESTION);
         return (result == IDYES);
     }
 

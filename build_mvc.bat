@@ -50,7 +50,7 @@ if not exist "obj\controllers" mkdir "obj\controllers"
 if not exist "bin" mkdir "bin"
 
 echo [1/6] Compilando módulo Utils...
-g++ -std=c++11 -Wall -O2 -Iinclude -c src/utils/AppUtils.cpp -o obj/utils/AppUtils.o
+g++ -std=c++11 -Wall -O2 -Iinclude -DUNICODE -D_UNICODE -c src/utils/AppUtils.cpp -o obj/utils/AppUtils.o
 if %ERRORLEVEL% neq 0 (
     echo [ERRO] Falha ao compilar módulo Utils!
     pause
@@ -58,7 +58,7 @@ if %ERRORLEVEL% neq 0 (
 )
 
 echo [2/6] Compilando módulo WindowMonitor...
-g++ -std=c++11 -Wall -O2 -Iinclude -c src/utils/WindowMonitor.cpp -o obj/utils/WindowMonitor.o
+g++ -std=c++11 -Wall -O2 -Iinclude -DUNICODE -D_UNICODE -c src/utils/WindowMonitor.cpp -o obj/utils/WindowMonitor.o
 if %ERRORLEVEL% neq 0 (
     echo [ERRO] Falha ao compilar módulo WindowMonitor!
     pause
@@ -66,7 +66,7 @@ if %ERRORLEVEL% neq 0 (
 )
 
 echo [3/6] Compilando módulo Controllers...
-g++ -std=c++11 -Wall -O2 -Iinclude -c src/controllers/MainController.cpp -o obj/controllers/MainController.o
+g++ -std=c++11 -Wall -O2 -Iinclude -DUNICODE -D_UNICODE -c src/controllers/MainController.cpp -o obj/controllers/MainController.o
 if %ERRORLEVEL% neq 0 (
     echo [ERRO] Falha ao compilar módulo Controllers!
     pause
@@ -74,7 +74,7 @@ if %ERRORLEVEL% neq 0 (
 )
 
 echo [4/6] Compilando módulo Forms...
-g++ -std=c++11 -Wall -O2 -Iinclude -c src/forms/MainForm.cpp -o obj/forms/MainForm.o
+g++ -std=c++11 -Wall -O2 -Iinclude -DUNICODE -D_UNICODE -c src/forms/MainForm.cpp -o obj/forms/MainForm.o
 if %ERRORLEVEL% neq 0 (
     echo [ERRO] Falha ao compilar módulo Forms!
     pause
@@ -82,7 +82,7 @@ if %ERRORLEVEL% neq 0 (
 )
 
 echo [5/6] Compilando módulo Main...
-g++ -std=c++11 -Wall -O2 -Iinclude -c src/main.cpp -o obj/main.o
+g++ -std=c++11 -Wall -O2 -Iinclude -DUNICODE -D_UNICODE -c src/main.cpp -o obj/main.o
 if %ERRORLEVEL% neq 0 (
     echo [ERRO] Falha ao compilar módulo Main!
     pause

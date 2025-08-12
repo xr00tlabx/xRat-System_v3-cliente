@@ -69,11 +69,25 @@ namespace AppUtils
     void ShowErrorMessage(const char *message, const char *title = "Erro");
 
     /**
+     * @brief Exibe uma mensagem de erro (Unicode)
+     * @param message Mensagem a ser exibida
+     * @param title Título da janela (opcional)
+     */
+    void ShowErrorMessage(const wchar_t *message, const wchar_t *title = L"Erro");
+
+    /**
      * @brief Exibe uma mensagem informativa
      * @param message Mensagem a ser exibida
      * @param title Título da janela (opcional)
      */
     void ShowInfoMessage(const char *message, const char *title = "Informação");
+
+    /**
+     * @brief Exibe uma mensagem informativa (Unicode)
+     * @param message Mensagem a ser exibida
+     * @param title Título da janela (opcional)
+     */
+    void ShowInfoMessage(const wchar_t *message, const wchar_t *title = L"Informação");
 
     /**
      * @brief Exibe uma mensagem de aviso
@@ -83,12 +97,27 @@ namespace AppUtils
     void ShowWarningMessage(const char *message, const char *title = "Aviso");
 
     /**
+     * @brief Exibe uma mensagem de aviso (Unicode)
+     * @param message Mensagem a ser exibida
+     * @param title Título da janela (opcional)
+     */
+    void ShowWarningMessage(const wchar_t *message, const wchar_t *title = L"Aviso");
+
+    /**
      * @brief Solicita confirmação do usuário
      * @param message Mensagem de confirmação
      * @param title Título da janela (opcional)
      * @return true se o usuário confirmou, false caso contrário
      */
     bool ConfirmAction(const char *message, const char *title = "Confirmar");
+
+    /**
+     * @brief Solicita confirmação do usuário (Unicode)
+     * @param message Mensagem de confirmação
+     * @param title Título da janela (opcional)
+     * @return true se o usuário confirmou, false caso contrário
+     */
+    bool ConfirmAction(const wchar_t *message, const wchar_t *title = L"Confirmar");
 
     // =============================================================================
     // FUNÇÕES DE STRING

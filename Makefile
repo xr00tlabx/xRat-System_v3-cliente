@@ -39,7 +39,7 @@ WARNINGS = -Wall -Wextra
 # Flags específicas por compilador
 ifdef IS_MSVC
     # Visual Studio / MSVC
-    CXXFLAGS = /std:$(CPPSTD) /W4 $(OPTIMIZATION) /I$(INCLUDE_DIR)
+    CXXFLAGS = /std:$(CPPSTD) /W4 $(OPTIMIZATION) /I$(INCLUDE_DIR) /DUNICODE /D_UNICODE
     LDFLAGS = /Fe:$(BIN_DIR)/$(TARGET_NAME)
     LIBS = gdi32.lib user32.lib kernel32.lib
     OBJ_EXT = obj
@@ -48,7 +48,7 @@ ifdef IS_MSVC
     RMDIR_CMD = rmdir /s /q
 else
     # GCC / MinGW
-    CXXFLAGS = -std=$(CPPSTD) $(WARNINGS) $(OPTIMIZATION) -I$(INCLUDE_DIR)
+    CXXFLAGS = -std=$(CPPSTD) $(WARNINGS) $(OPTIMIZATION) -I$(INCLUDE_DIR) -DUNICODE -D_UNICODE
     LDFLAGS = -o $(BIN_DIR)/$(TARGET_NAME)
     LIBS = -lgdi32 -luser32 -lkernel32
     OBJ_EXT = o

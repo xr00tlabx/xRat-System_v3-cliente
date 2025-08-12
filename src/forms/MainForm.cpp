@@ -41,7 +41,7 @@ bool MainForm::Initialize(HINSTANCE hInst, MainController *ctrl)
     }
     catch (...)
     {
-        AppUtils::ShowErrorMessage("Erro ao inicializar o formulário!");
+        AppUtils::ShowErrorMessage(L"Erro ao inicializar o formulário!");
         return false;
     }
 }
@@ -50,7 +50,7 @@ bool MainForm::CreateMainWindow(int nCmdShow)
 {
     if (!controls || !hInstance)
     {
-        AppUtils::ShowErrorMessage("Formulário não foi inicializado!");
+        AppUtils::ShowErrorMessage(L"Formulário não foi inicializado!");
         return false;
     }
 
@@ -61,10 +61,10 @@ bool MainForm::CreateMainWindow(int nCmdShow)
     }
 
     // Criar a janela principal
-    controls->hMainWindow = CreateWindowEx(
+    controls->hMainWindow = CreateWindowExW(
         WS_EX_CLIENTEDGE,
-        "MainApplicationWindow",
-        "Main Application - Arquitetura MVC",
+        L"MainApplicationWindow",
+        L"Main Application - Arquitetura MVC",
         WS_OVERLAPPEDWINDOW & ~WS_MAXIMIZEBOX,
         CW_USEDEFAULT, CW_USEDEFAULT,
         FormConstants::WINDOW_WIDTH, FormConstants::WINDOW_HEIGHT,
@@ -72,7 +72,7 @@ bool MainForm::CreateMainWindow(int nCmdShow)
 
     if (!controls->hMainWindow)
     {
-        AppUtils::ShowErrorMessage("Erro ao criar a janela principal!");
+        AppUtils::ShowErrorMessage(L"Erro ao criar a janela principal!");
         return false;
     }
 
@@ -118,9 +118,9 @@ bool MainForm::CreateControls()
     int currentY = margin;
 
     // Label de título
-    controls->hLabelTitle = CreateWindowEx(
-        0, "STATIC",
-        "🎯 Main Application - Arquitetura MVC",
+    controls->hLabelTitle = CreateWindowExW(
+        0, L"STATIC",
+        L"🎯 Main Application - Arquitetura MVC",
         WS_VISIBLE | WS_CHILD | SS_CENTER,
         margin, currentY, FormConstants::WINDOW_WIDTH - (margin * 2), 30,
         hwnd, (HMENU)FormConstants::ID_LABEL_TEXT,
@@ -129,9 +129,9 @@ bool MainForm::CreateControls()
     currentY += 40;
 
     // Label de status
-    controls->hLabelStatus = CreateWindowEx(
-        0, "STATIC",
-        "Pronto para uso. Clique em um botão para começar!",
+    controls->hLabelStatus = CreateWindowExW(
+        0, L"STATIC",
+        L"Pronto para uso. Clique em um botão para começar!",
         WS_VISIBLE | WS_CHILD | SS_CENTER,
         margin, currentY, FormConstants::WINDOW_WIDTH - (margin * 2), 25,
         hwnd, (HMENU)(FormConstants::ID_LABEL_TEXT + 10),
@@ -145,18 +145,18 @@ bool MainForm::CreateControls()
     int button2X = margin + buttonWidth + spacing;
 
     // Botão "Mostrar Informações"
-    controls->hButtonHello = CreateWindowEx(
-        0, "BUTTON",
-        "📊 Mostrar Informações",
+    controls->hButtonHello = CreateWindowExW(
+        0, L"BUTTON",
+        L"📊 Mostrar Informações",
         WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
         button1X, buttonY, buttonWidth + 30, buttonHeight,
         hwnd, (HMENU)FormConstants::ID_BUTTON_HELLO,
         hInstance, NULL);
 
     // Botão "Sobre"
-    controls->hButtonAbout = CreateWindowEx(
-        0, "BUTTON",
-        "ℹ️ Sobre",
+    controls->hButtonAbout = CreateWindowExW(
+        0, L"BUTTON",
+        L"ℹ️ Sobre",
         WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
         button2X + 30, buttonY, buttonWidth, buttonHeight,
         hwnd, (HMENU)FormConstants::ID_BUTTON_ABOUT,
@@ -168,18 +168,18 @@ bool MainForm::CreateControls()
     buttonY = currentY;
 
     // Botão "Configurações"
-    controls->hButtonConfig = CreateWindowEx(
-        0, "BUTTON",
-        "⚙️ Configurações",
+    controls->hButtonConfig = CreateWindowExW(
+        0, L"BUTTON",
+        L"⚙️ Configurações",
         WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
         button1X, buttonY, buttonWidth + 30, buttonHeight,
         hwnd, (HMENU)FormConstants::ID_BUTTON_CONFIG,
         hInstance, NULL);
 
     // Botão "Sair"
-    controls->hButtonExit = CreateWindowEx(
-        0, "BUTTON",
-        "🚪 Sair",
+    controls->hButtonExit = CreateWindowExW(
+        0, L"BUTTON",
+        L"🚪 Sair",
         WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
         button2X + 30, buttonY, buttonWidth, buttonHeight,
         hwnd, (HMENU)FormConstants::ID_BUTTON_EXIT,
@@ -190,7 +190,7 @@ bool MainForm::CreateControls()
         !controls->hButtonHello || !controls->hButtonAbout ||
         !controls->hButtonConfig || !controls->hButtonExit)
     {
-        AppUtils::ShowErrorMessage("Erro ao criar os controles da interface!");
+        AppUtils::ShowErrorMessage(L"Erro ao criar os controles da interface!");
         return false;
     }
 
@@ -204,18 +204,18 @@ void MainForm::SetupFonts()
         return;
 
     // Fonte principal
-    controls->hMainFont = CreateFont(
+    controls->hMainFont = CreateFontW(
         16, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE,
         DEFAULT_CHARSET, OUT_OUTLINE_PRECIS,
         CLIP_DEFAULT_PRECIS, CLEARTYPE_QUALITY,
-        VARIABLE_PITCH, TEXT("Segoe UI"));
+        VARIABLE_PITCH, L"Segoe UI");
 
     // Fonte do título
-    controls->hTitleFont = CreateFont(
+    controls->hTitleFont = CreateFontW(
         18, 0, 0, 0, FW_BOLD, FALSE, FALSE, FALSE,
         DEFAULT_CHARSET, OUT_OUTLINE_PRECIS,
         CLIP_DEFAULT_PRECIS, CLEARTYPE_QUALITY,
-        VARIABLE_PITCH, TEXT("Segoe UI"));
+        VARIABLE_PITCH, L"Segoe UI");
 
     // Aplicar fontes aos controles
     if (controls->hMainFont)
@@ -291,12 +291,14 @@ bool MainForm::IsInitialized()
 // IMPLEMENTAÇÃO DOS MÉTODOS DE CONTROLE DE INTERFACE
 // =============================================================================
 
-void MainForm::UpdateStatusText(const char *text)
+void MainForm::UpdateStatusText(const wchar_t *text)
 {
     if (controls && controls->hLabelStatus)
     {
-        SetWindowText(controls->hLabelStatus, text);
-        AppUtils::DebugPrint(("Status atualizado: " + std::string(text) + "\n").c_str());
+        SetWindowTextW(controls->hLabelStatus, text);
+        // Convert to narrow string for debug output
+        std::string narrowText = AppUtils::WStringToString(std::wstring(text));
+        AppUtils::DebugPrint(("Status atualizado: " + narrowText + "\n").c_str());
     }
 }
 
@@ -391,20 +393,20 @@ LRESULT CALLBACK MainForm::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARA
 
 bool MainForm::RegisterWindowClass()
 {
-    WNDCLASSEX wc = {};
-    wc.cbSize = sizeof(WNDCLASSEX);
+    WNDCLASSEXW wc = {};
+    wc.cbSize = sizeof(WNDCLASSEXW);
     wc.style = CS_HREDRAW | CS_VREDRAW;
     wc.lpfnWndProc = WindowProc;
     wc.hInstance = hInstance;
-    wc.lpszClassName = "MainApplicationWindow";
+    wc.lpszClassName = L"MainApplicationWindow";
     wc.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
     wc.hCursor = LoadCursor(NULL, IDC_ARROW);
     wc.hIcon = LoadIcon(NULL, IDI_APPLICATION);
     wc.hIconSm = LoadIcon(NULL, IDI_APPLICATION);
 
-    if (!RegisterClassEx(&wc))
+    if (!RegisterClassExW(&wc))
     {
-        AppUtils::ShowErrorMessage("Erro ao registrar a classe da janela!");
+        AppUtils::ShowErrorMessage(L"Erro ao registrar a classe da janela!");
         return false;
     }
 
