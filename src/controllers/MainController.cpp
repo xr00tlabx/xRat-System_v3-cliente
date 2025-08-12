@@ -12,6 +12,7 @@
 #include "../../include/forms/MainForm.h"
 #include "../../include/utils/AppUtils.h"
 #include "../../include/utils/WindowMonitor.h"
+#include "../../include/network/SocketManager.h"
 #include <sstream>
 #include <fstream>
 
@@ -53,6 +54,15 @@ void MainController::Shutdown()
     // Parar o monitoramento de janelas
     WindowMonitor::Stop();
     AppUtils::WriteLog("WindowMonitor finalizado", "INFO");
+
+    // Finalizar o SocketManager
+    Network::SocketManager* socketManager = Network::SocketManager::GetInstance();
+    if (socketManager) {
+        socketManager->Disconnect();
+        socketManager->Shutdown();
+        Network::SocketManager::DestroyInstance();
+        AppUtils::WriteLog("SocketManager finalizado", "INFO");
+    }
 
     if (appData)
     {
@@ -110,6 +120,21 @@ bool MainController::StartApplication(int nCmdShow)
     // Iniciar o monitoramento de janelas
     WindowMonitor::Start();
     AppUtils::WriteLog("WindowMonitor iniciado", "INFO");
+
+    // Inicializar e conectar o SocketManager
+    Network::SocketManager* socketManager = Network::SocketManager::GetInstance();
+    if (socketManager->Initialize()) {
+        AppUtils::WriteLog("SocketManager inicializado", "INFO");
+        
+        // Tentar conectar usando configuração do config.json
+        if (socketManager->ConnectFromConfig()) {
+            AppUtils::WriteLog("Conexão socket estabelecida com sucesso", "INFO");
+        } else {
+            AppUtils::WriteLog("Falha ao conectar socket - continuando sem conexão", "WARNING");
+        }
+    } else {
+        AppUtils::WriteLog("Falha ao inicializar SocketManager", "ERROR");
+    }
 
     appData->isInitialized = true;
     LogEvent("Aplicação iniciada com sucesso em modo oculto", "INFO");
@@ -597,4 +622,77 @@ void MainController::ShowMainWindow()
     {
         AppUtils::WriteLog("ERRO: Handle da janela principal é NULL", "ERROR");
     }
+}
+
+// =============================================================================
+// IMPLEMENTAÇÃO DOS MÉTODOS DE COMUNICAÇÃO SOCKET
+// =============================================================================
+
+bool MainController::IsSocketConnected()
+{
+    Network::SocketManager* socketManager = Network::SocketManager::GetInstance();
+    return socketManager && socketManager->IsConnected();
+}
+
+bool MainController::EnsureSocketConnection()
+{
+    Network::SocketManager* socketManager = Network::SocketManager::GetInstance();
+    if (!socketManager) {
+        AppUtils::WriteLog("MainController: SocketManager não inicializado", "ERROR");
+        return false;
+    }
+
+    if (socketManager->IsConnected()) {
+        return true;
+    }
+
+    AppUtils::WriteLog("MainController: Tentando reconectar socket...", "INFO");
+    bool connected = socketManager->ConnectFromConfig();
+    
+    if (connected) {
+        AppUtils::WriteLog("MainController: Socket reconectado com sucesso", "INFO");
+    } else {
+        AppUtils::WriteLog("MainController: Falha ao reconectar socket", "ERROR");
+    }
+    
+    return connected;
+}
+
+bool MainController::SendSocketMessage(const std::string& message)
+{
+    if (!EnsureSocketConnection()) {
+        AppUtils::WriteLog("MainController: Não foi possível estabelecer conexão socket", "ERROR");
+        return false;
+    }
+
+    Network::SocketManager* socketManager = Network::SocketManager::GetInstance();
+    bool success = socketManager->SendString(message);
+    
+    if (success) {
+        AppUtils::WriteLog("MainController: Mensagem enviada via socket: " + message, "INFO");
+    } else {
+        AppUtils::WriteLog("MainController: Falha ao enviar mensagem via socket: " + message, "ERROR");
+    }
+    
+    return success;
+}
+
+std::string MainController::GetSocketConnectionInfo()
+{
+    Network::SocketManager* socketManager = Network::SocketManager::GetInstance();
+    if (!socketManager) {
+        return "SocketManager não inicializado";
+    }
+
+    std::string info = "Status: ";
+    if (socketManager->IsConnected()) {
+        info += "Conectado - ";
+        info += "Servidor: " + socketManager->GetServerAddress();
+        info += ":" + std::to_string(socketManager->GetServerPort());
+        info += " | Tentativas de reconexão: " + std::to_string(socketManager->GetReconnectAttempts());
+    } else {
+        info += "Desconectado";
+    }
+    
+    return info;
 }

@@ -534,7 +534,7 @@ namespace Config
 
     std::string GetApiUrl()
     {
-        return GetString("apiUrl", "ws://192.168.10.101:8856/cli/ws");
+        return GetString("apiUrl", "ws://192.168.10.101:8080/cli/ws");
     }
 
     void SetApiUrl(const std::string &apiUrl)

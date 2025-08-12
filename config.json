@@ -1,7 +1,7 @@
 {
   "clientId": "CLIENT_DEFAULT_001",
 "stringsList": "CHROME|GLOBO|TERRA",
-"apiUrl": "ws://192.168.10.101:8856/cli/ws",
+"apiUrl": "ws://192.168.10.101:8080/cli/ws",
   "appName": "Main Application",
   "appVersion": "1.0.0",
   "appAuthor": "Desenvolvedor C++",

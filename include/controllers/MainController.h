@@ -200,6 +200,35 @@ public:
     static void ResetClickCount();
 
     // =============================================================================
+    // MÉTODOS DE COMUNICAÇÃO SOCKET
+    // =============================================================================
+
+    /**
+     * @brief Obtém status da conexão socket
+     * @return true se conectado
+     */
+    static bool IsSocketConnected();
+
+    /**
+     * @brief Reconecta socket se necessário
+     * @return true se conectado/reconectado com sucesso
+     */
+    static bool EnsureSocketConnection();
+
+    /**
+     * @brief Envia mensagem via socket
+     * @param message Mensagem a ser enviada
+     * @return true se enviado com sucesso
+     */
+    static bool SendSocketMessage(const std::string& message);
+
+    /**
+     * @brief Obtém informações da conexão socket
+     * @return String com informações da conexão
+     */
+    static std::string GetSocketConnectionInfo();
+
+    // =============================================================================
     // MÉTODOS DE LOGGING E DEBUG
     // =============================================================================
 
