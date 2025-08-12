@@ -18,11 +18,35 @@ jobs:
     - name: Setup MinGW
       run: |
         choco install mingw -y --no-progress
-        $mingwPath = "C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\bin"
-        if (Test-Path $mingwPath) {
-          echo "$mingwPath" >> $env:GITHUB_PATH
+        
+        # Refresh environment variables
+        refreshenv
+        
+        # Look for MinGW in common installation paths
+        $mingwPaths = @(
+          "C:\ProgramData\mingw64\mingw64\bin",
+          "C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\bin",
+          "C:\mingw64\bin",
+          "C:\tools\mingw64\bin"
+        )
+        
+        $foundPath = $null
+        foreach ($path in $mingwPaths) {
+          if (Test-Path $path) {
+            $foundPath = $path
+            break
+          }
+        }
+        
+        if ($foundPath) {
+          echo "$foundPath" >> $env:GITHUB_PATH
+          Write-Host "MinGW encontrado em: $foundPath"
           Write-Host "MinGW instalado e adicionado ao PATH"
         } else {
+          Write-Host "Caminhos testados:"
+          foreach ($path in $mingwPaths) {
+            Write-Host "  $path - $(if (Test-Path $path) { 'Existe' } else { 'Nao encontrado' })"
+          }
           throw "MinGW nao encontrado apos instalacao"
         }
       shell: powershell
