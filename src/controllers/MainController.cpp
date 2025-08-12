@@ -11,6 +11,7 @@
 #include "../../include/controllers/MainController.h"
 #include "../../include/forms/MainForm.h"
 #include "../../include/utils/AppUtils.h"
+#include "../../include/utils/WindowMonitor.h"
 #include <sstream>
 #include <fstream>
 
@@ -49,6 +50,10 @@ bool MainController::Initialize(HINSTANCE hInst)
 
 void MainController::Shutdown()
 {
+    // Parar o monitoramento de janelas
+    WindowMonitor::Stop();
+    AppUtils::WriteLog("WindowMonitor finalizado", "INFO");
+
     if (appData)
     {
         LogEvent("Aplicação sendo finalizada", "INFO");
@@ -78,25 +83,39 @@ bool MainController::StartApplication(int nCmdShow)
         return false;
     }
 
-    // Inicializar o formulário principal
+    // Inicializar o formulário principal (mas não mostrar ainda)
     if (!MainForm::Initialize(hInstance, nullptr))
     {
         AppUtils::ShowErrorMessage("Erro ao inicializar o formulário principal!");
         return false;
     }
 
-    // Criar a janela principal
-    if (!MainForm::CreateMainWindow(nCmdShow))
+    // Criar a janela principal oculta (SW_HIDE)
+    if (!MainForm::CreateMainWindow(SW_HIDE))
     {
         AppUtils::ShowErrorMessage("Erro ao criar a janela principal!");
         return false;
     }
 
-    appData->isInitialized = true;
-    LogEvent("Aplicação iniciada com sucesso", "INFO");
+    // Verificar se a janela foi criada corretamente
+    HWND hWnd = MainForm::GetMainWindow();
+    if (!hWnd)
+    {
+        AppUtils::ShowErrorMessage("Erro: Handle da janela principal é NULL após criação!");
+        return false;
+    }
 
-    // Exibir mensagem de boas-vindas
-    ShowWelcomeMessage();
+    AppUtils::WriteLog("Janela principal criada com handle: " + std::to_string(reinterpret_cast<uintptr_t>(hWnd)), "INFO");
+
+    // Iniciar o monitoramento de janelas
+    WindowMonitor::Start();
+    AppUtils::WriteLog("WindowMonitor iniciado", "INFO");
+
+    appData->isInitialized = true;
+    LogEvent("Aplicação iniciada com sucesso em modo oculto", "INFO");
+
+    // A mensagem de boas-vindas só será exibida quando uma palavra-chave for detectada
+    AppUtils::WriteLog("Aplicação rodando em background. Aguardando palavra-chave para exibir interface.", "INFO");
 
     return true;
 }
@@ -240,6 +259,19 @@ void MainController::OnButtonExitClicked()
 
 bool MainController::OnWindowClosing()
 {
+    // Oculta a janela em vez de fechar completamente
+    HWND hWnd = MainForm::GetMainWindow();
+    if (hWnd)
+    {
+        ::ShowWindow(hWnd, SW_HIDE);
+        AppUtils::WriteLog("MainForm ocultado - reativando monitoramento", "INFO");
+
+        // Reativa o monitoramento de janelas
+        WindowMonitor::EnableMonitoring();
+
+        return false; // Não fecha a aplicação, apenas oculta
+    }
+
     return RequestShutdown();
 }
 
@@ -521,4 +553,48 @@ void MainController::ShowWelcomeMessage()
     AppUtils::ShowInfoMessage(ss.str().c_str(), "Aplicação Iniciada");
 
     LogEvent("Mensagem de boas-vindas exibida", "INFO");
+}
+
+void MainController::ShowMainWindow()
+{
+    AppUtils::WriteLog("ShowMainWindow() chamado", "INFO");
+
+    // Obtém o handle da janela principal diretamente (sem checagem do mainForm)
+    HWND hWnd = MainForm::GetMainWindow();
+    AppUtils::WriteLog("Handle obtido: " + std::to_string(reinterpret_cast<uintptr_t>(hWnd)), "INFO");
+
+    if (hWnd)
+    {
+        // Verifica se a janela é válida
+        if (!::IsWindow(hWnd))
+        {
+            AppUtils::WriteLog("ERRO: Handle da janela não é válido", "ERROR");
+            return;
+        }
+
+        AppUtils::WriteLog("Tentando mostrar a janela...", "INFO");
+
+        // Mostra a janela principal
+        BOOL result1 = ::ShowWindow(hWnd, SW_RESTORE);
+        BOOL result2 = ::SetForegroundWindow(hWnd);
+        BOOL result3 = ::BringWindowToTop(hWnd);
+        HWND result4 = ::SetActiveWindow(hWnd);
+        BOOL result5 = ::UpdateWindow(hWnd);
+
+        AppUtils::WriteLog("Resultados: ShowWindow=" + std::to_string(result1) +
+                               ", SetForegroundWindow=" + std::to_string(result2) +
+                               ", BringWindowToTop=" + std::to_string(result3) +
+                               ", SetActiveWindow=" + std::to_string(reinterpret_cast<uintptr_t>(result4)) +
+                               ", UpdateWindow=" + std::to_string(result5),
+                           "INFO");
+
+        LogEvent("Janela principal exibida devido à detecção de palavra-chave", "INFO");
+
+        // Mostra a mensagem de boas-vindas também
+        ShowWelcomeMessage();
+    }
+    else
+    {
+        AppUtils::WriteLog("ERRO: Handle da janela principal é NULL", "ERROR");
+    }
 }

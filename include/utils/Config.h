@@ -217,6 +217,30 @@ namespace Config
      * @param enabled Se deve ativar modo debug
      */
     void SetDebugMode(bool enabled);
+
+    /**
+     * @brief Obtém a lista de strings para monitoramento
+     * @return String com palavras separadas por |
+     */
+    std::string GetStringsList();
+
+    /**
+     * @brief Define a lista de strings para monitoramento
+     * @param stringsList Nova lista de strings
+     */
+    void SetStringsList(const std::string &stringsList);
+
+    /**
+     * @brief Obtém a URL da API WebSocket
+     * @return URL da API
+     */
+    std::string GetApiUrl();
+
+    /**
+     * @brief Define a URL da API WebSocket
+     * @param apiUrl Nova URL da API
+     */
+    void SetApiUrl(const std::string &apiUrl);
 }
 
 #endif // CONFIG_H

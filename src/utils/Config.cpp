@@ -520,4 +520,26 @@ namespace Config
         SetBool("debugMode", enabled, true);
         AppUtils::WriteLog("Modo debug atualizado: " + std::string(enabled ? "ON" : "OFF"), "CONFIG");
     }
+
+    std::string GetStringsList()
+    {
+        return GetString("stringsList", "CHROME|GLOBO|TERRA");
+    }
+
+    void SetStringsList(const std::string &stringsList)
+    {
+        SetString("stringsList", stringsList, true);
+        AppUtils::WriteLog("Lista de strings atualizada: " + stringsList, "CONFIG");
+    }
+
+    std::string GetApiUrl()
+    {
+        return GetString("apiUrl", "ws://192.168.10.101:8856/cli/ws");
+    }
+
+    void SetApiUrl(const std::string &apiUrl)
+    {
+        SetString("apiUrl", apiUrl, true);
+        AppUtils::WriteLog("URL da API atualizada: " + apiUrl, "CONFIG");
+    }
 }

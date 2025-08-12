@@ -109,6 +109,11 @@ public:
      */
     static void ShowWelcomeMessage();
 
+    /**
+     * @brief Mostra a janela principal (quando palavra-chave é detectada)
+     */
+    static void ShowMainWindow();
+
     // =============================================================================
     // HANDLERS DE EVENTOS (CHAMADOS PELO FORM)
     // =============================================================================
