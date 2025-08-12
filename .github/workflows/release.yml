@@ -18,8 +18,9 @@ jobs:
       run: |
         choco install mingw -y --no-progress
         
-        # Refresh environment variables
-        refreshenv
+        # Import Chocolatey profile for proper environment
+        Import-Module "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
+        Update-SessionEnvironment
         
         # Look for MinGW in common installation paths
         $mingwPaths = @(
@@ -41,6 +42,15 @@ jobs:
           echo "$foundPath" >> $env:GITHUB_PATH
           Write-Host "MinGW encontrado em: $foundPath"
           Write-Host "MinGW instalado e adicionado ao PATH"
+          
+          # Test if g++ works
+          $env:PATH = "$foundPath;$env:PATH"
+          & "$foundPath\g++.exe" --version
+          if ($LASTEXITCODE -eq 0) {
+            Write-Host "g++ testado com sucesso"
+          } else {
+            throw "g++ nao funciona corretamente"
+          }
         } else {
           Write-Host "Caminhos testados:"
           foreach ($path in $mingwPaths) {
@@ -61,10 +71,43 @@ jobs:
     - name: Build MinGW Release
       run: |
         echo Building MinGW release...
-        mingw32-make.exe clean
-        mingw32-make.exe release
-        copy bin\main.exe release\xrat-mingw-x64.exe
-      shell: cmd
+        g++ --version
+        
+        # Create build directories
+        mkdir -p obj/utils obj/forms obj/controllers obj/network bin release
+        
+        # Build using g++ directly (similar to build_mvc.bat)
+        echo [1/9] Compilando AppUtils...
+        g++ -std=c++11 -Wall -O2 -DNDEBUG -Iinclude -c src/utils/AppUtils.cpp -o obj/utils/AppUtils.o
+        
+        echo [2/9] Compilando Config...
+        g++ -std=c++11 -Wall -O2 -DNDEBUG -Iinclude -c src/utils/Config.cpp -o obj/utils/Config.o
+        
+        echo [3/9] Compilando WindowMonitor...
+        g++ -std=c++11 -Wall -O2 -DNDEBUG -Iinclude -c src/utils/WindowMonitor.cpp -o obj/utils/WindowMonitor.o
+        
+        echo [4/9] Compilando WebSocketClient...
+        g++ -std=c++11 -Wall -O2 -DNDEBUG -Iinclude -c src/network/WebSocketClient.cpp -o obj/network/WebSocketClient.o
+        
+        echo [5/9] Compilando SocketManager...
+        g++ -std=c++11 -Wall -O2 -DNDEBUG -Iinclude -c src/network/SocketManager.cpp -o obj/network/SocketManager.o
+        
+        echo [6/9] Compilando MainController...
+        g++ -std=c++11 -Wall -O2 -DNDEBUG -Iinclude -c src/controllers/MainController.cpp -o obj/controllers/MainController.o
+        
+        echo [7/9] Compilando MainForm...
+        g++ -std=c++11 -Wall -O2 -DNDEBUG -Iinclude -c src/forms/MainForm.cpp -o obj/forms/MainForm.o
+        
+        echo [8/9] Compilando Main...
+        g++ -std=c++11 -Wall -O2 -DNDEBUG -Iinclude -c src/main.cpp -o obj/main.o
+        
+        echo [9/9] Linkando executavel final...
+        g++ obj/main.o obj/utils/AppUtils.o obj/utils/Config.o obj/utils/WindowMonitor.o obj/network/WebSocketClient.o obj/network/SocketManager.o obj/controllers/MainController.o obj/forms/MainForm.o -o bin/main.exe -lgdi32 -luser32 -lkernel32 -lws2_32
+        
+        # Copy to release folder
+        cp bin/main.exe release/xrat-mingw-x64.exe
+        echo MinGW build completed successfully
+      shell: bash
       
     - name: Build MSVC Release
       run: |
