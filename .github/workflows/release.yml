@@ -55,7 +55,7 @@ jobs:
       
     - name: Create build directories
       run: |
-        New-Item -ItemType Directory -Path "obj", "obj\utils", "obj\forms", "obj\controllers", "bin", "release" -Force
+        New-Item -ItemType Directory -Path "obj", "obj\utils", "obj\forms", "obj\controllers", "obj\network", "bin", "release" -Force
       shell: powershell
       
     - name: Build MinGW Release
@@ -72,10 +72,12 @@ jobs:
         cl /EHsc /W3 /O2 /DNDEBUG /D_CRT_SECURE_NO_WARNINGS /Iinclude /c src/utils/AppUtils.cpp /Fo:obj/utils/AppUtils.obj
         cl /EHsc /W3 /O2 /DNDEBUG /D_CRT_SECURE_NO_WARNINGS /Iinclude /c src/utils/Config.cpp /Fo:obj/utils/Config.obj
         cl /EHsc /W3 /O2 /DNDEBUG /D_CRT_SECURE_NO_WARNINGS /Iinclude /c src/utils/WindowMonitor.cpp /Fo:obj/utils/WindowMonitor.obj
+        cl /EHsc /W3 /O2 /DNDEBUG /D_CRT_SECURE_NO_WARNINGS /Iinclude /c src/network/WebSocketClient.cpp /Fo:obj/network/WebSocketClient.obj
+        cl /EHsc /W3 /O2 /DNDEBUG /D_CRT_SECURE_NO_WARNINGS /Iinclude /c src/network/SocketManager.cpp /Fo:obj/network/SocketManager.obj
         cl /EHsc /W3 /O2 /DNDEBUG /D_CRT_SECURE_NO_WARNINGS /Iinclude /c src/controllers/MainController.cpp /Fo:obj/controllers/MainController.obj
         cl /EHsc /W3 /O2 /DNDEBUG /D_CRT_SECURE_NO_WARNINGS /Iinclude /c src/forms/MainForm.cpp /Fo:obj/forms/MainForm.obj
         cl /EHsc /W3 /O2 /DNDEBUG /D_CRT_SECURE_NO_WARNINGS /Iinclude /c src/main.cpp /Fo:obj/main.obj
-        link obj/main.obj obj/utils/AppUtils.obj obj/utils/Config.obj obj/utils/WindowMonitor.obj obj/controllers/MainController.obj obj/forms/MainForm.obj /OUT:release/xrat-msvc-x64.exe gdi32.lib user32.lib kernel32.lib
+        link obj/main.obj obj/utils/AppUtils.obj obj/utils/Config.obj obj/utils/WindowMonitor.obj obj/network/WebSocketClient.obj obj/network/SocketManager.obj obj/controllers/MainController.obj obj/forms/MainForm.obj /OUT:release/xrat-msvc-x64.exe gdi32.lib user32.lib kernel32.lib ws2_32.lib
       shell: cmd
       
     - name: Create changelog
@@ -84,8 +86,12 @@ jobs:
         $changelogContent = "# Changelog " + $tag + "`n`n"
         $changelogContent += "## Funcionalidades`n"
         $changelogContent += "- Interface Win32 nativa com arquitetura MVC`n"
+        $changelogContent += "- **Cliente WebSocket nativo C++** - Comunicação WebSocket RFC 6455 completa`n"
+        $changelogContent += "- **Protocolo WebSocket** - Handshake, frames, masking/unmasking`n"
+        $changelogContent += "- **Thread de recebimento** - Comunicação bidirecional em tempo real`n"
+        $changelogContent += "- **Sistema de configuração JSON** - URL do servidor configurável`n"
         $changelogContent += "- Monitoramento de janelas ativas em background (thread separada)`n"
-        $changelogContent += "- Sistema de logging estruturado`n"
+        $changelogContent += "- Sistema de logging estruturado com comunicação WebSocket`n"
         $changelogContent += "- Build suportado para MinGW e MSVC`n`n"
         $changelogContent += "## Binarios Inclusos`n"
         $changelogContent += "- **xrat-mingw-x64.exe** - Compilado com MinGW/GCC (recomendado)`n"
@@ -94,10 +100,19 @@ jobs:
         $changelogContent += "- Windows 7 ou superior`n"
         $changelogContent += "- Arquitetura x64`n`n"
         $changelogContent += "## Como Usar`n"
-        $changelogContent += "1. Baixe o executavel de sua preferencia`n"
-        $changelogContent += "2. Execute o programa`n"
-        $changelogContent += "3. Use os botoes da interface para interagir`n"
-        $changelogContent += "4. Verifique os logs em application.log`n`n"
+        $changelogContent += "1. Configure a URL do servidor WebSocket no arquivo config.json`n"
+        $changelogContent += "2. Baixe o executavel de sua preferencia`n"
+        $changelogContent += "3. Execute o programa`n"
+        $changelogContent += "4. O cliente conectará automaticamente ao servidor WebSocket`n"
+        $changelogContent += "5. Use os botoes da interface para interagir`n"
+        $changelogContent += "6. Verifique os logs em application.log`n`n"
+        $changelogContent += "## Comunicação WebSocket`n"
+        $changelogContent += "O cliente implementa:`n"
+        $changelogContent += "- **Protocolo WebSocket RFC 6455** - Implementação completa nativa em C++`n"
+        $changelogContent += "- **Conexão automática** - Conecta ao servidor configurado na inicialização`n"
+        $changelogContent += "- **Comunicação bidirecional** - Envia e recebe mensagens em tempo real`n"
+        $changelogContent += "- **Thread dedicada** - Recebimento de mensagens sem bloquear interface`n"
+        $changelogContent += "- **Formato JSON** - Troca de mensagens estruturadas`n`n"
         $changelogContent += "## Logs e Monitoramento`n"
         $changelogContent += "O programa automaticamente:`n"
         $changelogContent += "- Registra eventos da aplicacao`n"

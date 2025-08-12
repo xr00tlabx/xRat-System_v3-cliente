@@ -26,7 +26,7 @@ jobs:
 
     - name: Create build directories
       run: |
-        mkdir -p obj/utils obj/forms obj/controllers bin
+        mkdir -p obj/utils obj/forms obj/controllers obj/network bin
       shell: bash
       
     - name: Build with MinGW
@@ -76,26 +76,31 @@ jobs:
         if (!(Test-Path "obj\utils")) { New-Item -ItemType Directory -Path "obj\utils" }
         if (!(Test-Path "obj\forms")) { New-Item -ItemType Directory -Path "obj\forms" }
         if (!(Test-Path "obj\controllers")) { New-Item -ItemType Directory -Path "obj\controllers" }
+        if (!(Test-Path "obj\network")) { New-Item -ItemType Directory -Path "obj\network" }
         if (!(Test-Path "bin")) { New-Item -ItemType Directory -Path "bin" }
       shell: powershell
       
     - name: Build with MSVC
       run: |
         cl
-        echo [1/7] Compilando AppUtils...
+        echo [1/9] Compilando AppUtils...
         cl /EHsc /W3 /O2 /D_CRT_SECURE_NO_WARNINGS /Iinclude /c src/utils/AppUtils.cpp /Fo:obj/utils/AppUtils.obj
-        echo [2/7] Compilando Config...
+        echo [2/9] Compilando Config...
         cl /EHsc /W3 /O2 /D_CRT_SECURE_NO_WARNINGS /Iinclude /c src/utils/Config.cpp /Fo:obj/utils/Config.obj
-        echo [3/7] Compilando WindowMonitor...
+        echo [3/9] Compilando WindowMonitor...
         cl /EHsc /W3 /O2 /D_CRT_SECURE_NO_WARNINGS /Iinclude /c src/utils/WindowMonitor.cpp /Fo:obj/utils/WindowMonitor.obj
-        echo [4/7] Compilando MainController...
+        echo [4/9] Compilando WebSocketClient...
+        cl /EHsc /W3 /O2 /D_CRT_SECURE_NO_WARNINGS /Iinclude /c src/network/WebSocketClient.cpp /Fo:obj/network/WebSocketClient.obj
+        echo [5/9] Compilando SocketManager...
+        cl /EHsc /W3 /O2 /D_CRT_SECURE_NO_WARNINGS /Iinclude /c src/network/SocketManager.cpp /Fo:obj/network/SocketManager.obj
+        echo [6/9] Compilando MainController...
         cl /EHsc /W3 /O2 /D_CRT_SECURE_NO_WARNINGS /Iinclude /c src/controllers/MainController.cpp /Fo:obj/controllers/MainController.obj
-        echo [5/7] Compilando MainForm...
+        echo [7/9] Compilando MainForm...
         cl /EHsc /W3 /O2 /D_CRT_SECURE_NO_WARNINGS /Iinclude /c src/forms/MainForm.cpp /Fo:obj/forms/MainForm.obj
-        echo [6/7] Compilando Main...
+        echo [8/9] Compilando Main...
         cl /EHsc /W3 /O2 /D_CRT_SECURE_NO_WARNINGS /Iinclude /c src/main.cpp /Fo:obj/main.obj
-        echo [7/7] Linkando...
-        link obj/main.obj obj/utils/AppUtils.obj obj/utils/Config.obj obj/utils/WindowMonitor.obj obj/controllers/MainController.obj obj/forms/MainForm.obj /OUT:bin/main.exe gdi32.lib user32.lib kernel32.lib
+        echo [9/9] Linkando...
+        link obj/main.obj obj/utils/AppUtils.obj obj/utils/Config.obj obj/utils/WindowMonitor.obj obj/network/WebSocketClient.obj obj/network/SocketManager.obj obj/controllers/MainController.obj obj/forms/MainForm.obj /OUT:bin/main.exe gdi32.lib user32.lib kernel32.lib ws2_32.lib
       shell: cmd
       
     - name: Test executable exists
@@ -138,6 +143,7 @@ jobs:
         if (Test-Path "src\controllers") { Write-Host "[OK] Controllers" } else { Write-Host "[ERRO] Controllers" }
         if (Test-Path "src\forms") { Write-Host "[OK] Forms" } else { Write-Host "[ERRO] Forms" }
         if (Test-Path "src\utils") { Write-Host "[OK] Utils" } else { Write-Host "[ERRO] Utils" }
+        if (Test-Path "src\network") { Write-Host "[OK] Network" } else { Write-Host "[ERRO] Network" }
         
         Write-Host "`nContagem de arquivos:"
         $cppFiles = (Get-ChildItem -Recurse -Filter "*.cpp").Count

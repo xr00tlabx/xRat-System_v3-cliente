@@ -50,5 +50,13 @@ desktop.ini
 .vscode/tasks.json
 .vscode/c_cpp_properties.json
 
+# Servidor Node.js (não deve ser versionado - apenas para testes)
+servidor/
+node_modules/
+package-lock.json
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
 # Manter apenas as instruções do Copilot
 !.github-copilot-instructions.md
