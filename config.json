@@ -1,0 +1,13 @@
+{
+  "clientId": "CLIENT_DEFAULT_001",
+  "appName": "Main Application",
+  "appVersion": "1.0.0",
+  "appAuthor": "Desenvolvedor C++",
+  "appDescription": "Aplicação Windows desenvolvida em C++",
+  "debugMode": false,
+  "autoSave": true,
+  "logLevel": "INFO",
+  "windowWidth": 600,
+  "windowHeight": 400,
+  "windowCentered": true
+}

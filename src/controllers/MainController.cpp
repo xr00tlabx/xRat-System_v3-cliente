@@ -137,28 +137,34 @@ void MainController::OnButtonHelloClicked()
     IncrementClickCount();
 
     std::stringstream ss;
-    ss << "Main Application - Informações Detalhadas\n\n"
-       << "Informações da Aplicação:\n"
-       << "• Nome: " << appData->appName << "\n"
-       << "• Versão: " << appData->appVersion << "\n"
-       << "• Desenvolvido por: " << appData->appAuthor << "\n"
-       << "• Data: " << appData->buildDate << "\n"
-       << "• Hora: " << appData->buildTime << "\n\n"
-       << "Arquitetura MVC:\n"
-       << "Esta aplicação utiliza o padrão Model-View-Controller "
-       << "para separar responsabilidades e facilitar manutenção.\n\n"
-       << "Como usar:\n"
-       << "• Clique em 'Mostrar Informações' para ver detalhes\n"
-       << "• Use 'Sobre' para informações da aplicação\n"
-       << "• 'Configurações' para alterar o modo debug\n"
-       << "• 'Sair' para fechar a aplicação\n\n"
-       << "Objetivo:\n"
-       << "Demonstrar boas práticas de desenvolvimento C++ com "
-       << "interface gráfica nativa do Windows.\n\n"
-       << "Desenvolvido por: " << appData->appAuthor << "\n"
-       << "Versão: " << appData->appVersion;
+    ss << "🎯 " << appData->GetAppName() << " - Informações Detalhadas\n\n"
+       << "📋 Informações da Aplicação:\n"
+       << "• Nome: " << appData->GetAppName() << "\n"
+       << "• Versão: " << appData->GetAppVersion() << "\n"
+       << "• Autor: " << appData->GetAppAuthor() << "\n"
+       << "• Descrição: " << appData->GetAppDescription() << "\n"
+       << "• Client ID: " << appData->GetClientId() << "\n"
+       << "• Data de Build: " << appData->buildDate << "\n"
+       << "• Hora de Build: " << appData->buildTime << "\n\n"
+       << "🛠️ Informações Técnicas:\n"
+       << "• Linguagem: C++ (ISO C++11)\n"
+       << "• API: Win32 Native\n"
+       << "• Arquitetura: x64\n"
+       << "• Paradigma: Orientado a Objetos\n"
+       << "• Estrutura: MVC (Model-View-Controller)\n\n"
+       << "📊 Estatísticas de Uso:\n"
+       << "• Cliques no botão: " << appData->clickCount << "\n"
+       << "• Modo Debug: " << (appData->GetDebugMode() ? "Ativado" : "Desativado") << "\n"
+       << "• Data/Hora atual: " << AppUtils::GetCurrentDateTime() << "\n\n"
+       << "✨ Recursos Implementados:\n"
+       << "• Interface gráfica modular\n"
+       << "• Arquitetura MVC\n"
+       << "• Sistema de logging\n"
+       << "• Gerenciamento de recursos\n"
+       << "• Utilitários diversos";
 
-    AppUtils::ShowInfoMessage(ss.str().c_str(), "Informações");
+    AppUtils::ShowInfoMessage(ss.str().c_str(), "Informações do Sistema");
+
 
     // Atualizar status no formulário
     MainForm::UpdateStatusText("Informações exibidas com sucesso!");
@@ -172,22 +178,22 @@ void MainController::OnButtonAboutClicked()
         return;
 
     std::stringstream ss;
-    ss << "Sobre o Main Application\n\n"
-       << "Esta é uma aplicação de demonstração desenvolvida "
-       << "em C++ utilizando a API nativa do Windows (Win32).\n\n"
-       << "Arquitetura:\n"
-       << "A aplicação segue o padrão MVC "
-       << "(Model-View-Controller), separando a lógica de negócio da "
-       << "interface do usuário.\n\n"
-       << "Estrutura de Módulos:\n"
+    ss << "ℹ️ Sobre o " << appData->GetAppName() << "\n\n"
+       << "Esta é uma aplicação de demonstração desenvolvida em C++ "
+       << "utilizando a API nativa do Windows (Win32).\n\n"
+       << "🏗️ Arquitetura:\n"
+       << "A aplicação segue o padrão MVC (Model-View-Controller), "
+       << "separando a lógica de negócio da interface do usuário.\n\n"
+       << "📁 Estrutura de Módulos:\n"
        << "• Forms: Responsável pela interface\n"
        << "• Controllers: Lógica de negócio\n"
-       << "• Utils: Funções utilitárias\n\n"
-       << "Objetivo:\n"
+       << "• Utils: Funções utilitárias\n"
+       << "• Config: Sistema de configuração centralizada\n\n"
+       << "🎯 Objetivo:\n"
        << "Demonstrar boas práticas de desenvolvimento C++ "
        << "com interface gráfica nativa do Windows.\n\n"
-       << "Desenvolvido por: " << appData->appAuthor << "\n"
-       << "Versão: " << appData->appVersion;
+       << "Desenvolvido por: " << appData->GetAppAuthor() << "\n"
+       << "Versão: " << appData->GetAppVersion();
 
     AppUtils::ShowInfoMessage(ss.str().c_str(), "Sobre a Aplicação");
 
@@ -199,20 +205,29 @@ void MainController::OnButtonConfigClicked()
     if (!appData)
         return;
 
-    // Toggle do modo debug
-    SetDebugMode(!appData->isDebugMode);
+    // Toggle do modo debug usando o sistema de configuração
+    appData->SetDebugMode(!appData->GetDebugMode());
 
     std::stringstream ss;
-    ss << "Configurações da Aplicação\n\n"
-       << "Modo Debug: " << (appData->isDebugMode ? "Ativado" : "Desativado") << "\n\n"
-       << "O modo debug foi " << (appData->isDebugMode ? "ativado" : "desativado") << ".\n"
-       << "Isso afeta o nível de logging e informações de debug.";
+    ss << "⚙️ Configurações da Aplicação\n\n"
+       << "=== CONFIGURAÇÕES GERAIS ===\n"
+       << "• Client ID: " << appData->GetClientId() << "\n"
+       << "• Modo Debug: " << (appData->GetDebugMode() ? "✅ Ativado" : "❌ Desativado") << "\n"
+       << "• Auto Save: " << (Config::GetBool("autoSave", true) ? "✅ Ativado" : "❌ Desativado") << "\n"
+       << "• Log Level: " << Config::GetString("logLevel", "INFO") << "\n\n"
+       << "=== CONFIGURAÇÕES DE JANELA ===\n"
+       << "• Largura: " << Config::GetInt("windowWidth", 600) << "px\n"
+       << "• Altura: " << Config::GetInt("windowHeight", 400) << "px\n"
+       << "• Centralizada: " << (Config::GetBool("windowCentered", true) ? "✅ Sim" : "❌ Não") << "\n\n"
+       << "💾 Arquivo de Configuração:\n" << Config::GetConfigFilePath() << "\n\n"
+       << "O modo debug foi " << (appData->GetDebugMode() ? "ativado" : "desativado") << ".\n"
+       << "As configurações são salvas automaticamente.";
 
     AppUtils::ShowInfoMessage(ss.str().c_str(), "Configurações");
 
-    MainForm::UpdateStatusText(appData->isDebugMode ? "Modo Debug ATIVADO" : "Modo Debug DESATIVADO");
+    MainForm::UpdateStatusText(appData->GetDebugMode() ? "Modo Debug ATIVADO" : "Modo Debug DESATIVADO");
 
-    LogEvent("Modo debug alterado para: " + std::string(appData->isDebugMode ? "ON" : "OFF"), "CONFIG");
+    LogEvent("Modo debug alterado para: " + std::string(appData->GetDebugMode() ? "ON" : "OFF"), "CONFIG");
 }
 
 void MainController::OnButtonExitClicked()
@@ -239,12 +254,12 @@ ApplicationData *MainController::GetApplicationData()
 
 std::string MainController::GetApplicationName()
 {
-    return appData ? appData->appName : "Unknown";
+    return appData ? appData->GetAppName() : "Unknown";
 }
 
 std::string MainController::GetApplicationVersion()
 {
-    return appData ? appData->appVersion : "0.0.0";
+    return appData ? appData->GetAppVersion() : "0.0.0";
 }
 
 std::string MainController::GetApplicationInfo()
@@ -253,8 +268,8 @@ std::string MainController::GetApplicationInfo()
         return "Aplicação não inicializada";
 
     std::stringstream ss;
-    ss << appData->appName << " v" << appData->appVersion
-       << " por " << appData->appAuthor;
+    ss << appData->GetAppName() << " v" << appData->GetAppVersion()
+       << " por " << appData->GetAppAuthor();
 
     return ss.str();
 }
@@ -267,14 +282,14 @@ void MainController::SetDebugMode(bool enabled)
 {
     if (appData)
     {
-        appData->isDebugMode = enabled;
+        appData->SetDebugMode(enabled);
         AppUtils::WriteLog("Modo debug alterado para: " + std::string(enabled ? "ON" : "OFF"), "CONFIG");
     }
 }
 
 bool MainController::IsDebugMode()
 {
-    return appData ? appData->isDebugMode : false;
+    return appData ? appData->GetDebugMode() : false;
 }
 
 int MainController::IncrementClickCount()
@@ -283,7 +298,7 @@ int MainController::IncrementClickCount()
     {
         appData->clickCount++;
 
-        if (appData->isDebugMode)
+        if (appData->GetDebugMode())
         {
             AppUtils::DebugPrint(("Click count: " + std::to_string(appData->clickCount) + "\n").c_str());
         }
@@ -310,7 +325,7 @@ void MainController::LogEvent(const std::string &event, const std::string &level
 {
     AppUtils::WriteLog(event, level);
 
-    if (appData && appData->isDebugMode)
+    if (appData && appData->GetDebugMode())
     {
         std::string debugMsg = "[" + level + "] " + event + "\n";
         AppUtils::DebugPrint(debugMsg.c_str());
@@ -326,7 +341,7 @@ void MainController::ShowDebugInfo()
     ss << "🐛 Informações de Debug\n\n"
        << "Estado da Aplicação:\n"
        << "• Inicializada: " << (appData->isInitialized ? "Sim" : "Não") << "\n"
-       << "• Modo Debug: " << (appData->isDebugMode ? "Ativo" : "Inativo") << "\n"
+       << "• Modo Debug: " << (appData->GetDebugMode() ? "Ativo" : "Inativo") << "\n"
        << "• Contador de Cliques: " << appData->clickCount << "\n\n"
        << "Informações do Sistema:\n"
        << FormatSystemInfo() << "\n\n"
@@ -348,10 +363,10 @@ bool MainController::SaveApplicationState(const std::string &filename)
         if (file.is_open())
         {
             file << "# Estado da Aplicação\n";
-            file << "Nome=" << appData->appName << "\n";
-            file << "Versao=" << appData->appVersion << "\n";
+            file << "Nome=" << appData->GetAppName() << "\n";
+            file << "Versao=" << appData->GetAppVersion() << "\n";
             file << "ClickCount=" << appData->clickCount << "\n";
-            file << "DebugMode=" << (appData->isDebugMode ? "1" : "0") << "\n";
+            file << "DebugMode=" << (appData->GetDebugMode() ? "1" : "0") << "\n";
             file << "SaveTime=" << AppUtils::GetCurrentDateTime() << "\n";
             file.close();
 
@@ -392,7 +407,7 @@ bool MainController::LoadApplicationState(const std::string &filename)
                 }
                 else if (line.find("DebugMode=") == 0)
                 {
-                    appData->isDebugMode = (line.substr(10) == "1");
+                    appData->SetDebugMode(line.substr(10) == "1");
                 }
             }
             file.close();
@@ -433,9 +448,9 @@ bool MainController::ValidateApplicationState()
         return false;
 
     // Validações básicas
-    bool isValid = !appData->appName.empty() &&
-                   !appData->appVersion.empty() &&
-                   !appData->appAuthor.empty();
+    bool isValid = !appData->GetAppName().empty() &&
+                   !appData->GetAppVersion().empty() &&
+                   !appData->GetAppAuthor().empty();
 
     if (!isValid)
     {
@@ -476,7 +491,7 @@ std::string MainController::FormatApplicationStats()
     std::stringstream ss;
     ss << "• Total de cliques: " << appData->clickCount << "\n";
     ss << "• Tempo de execução: Desde o início\n";
-    ss << "• Modo atual: " << (appData->isDebugMode ? "Debug" : "Release");
+    ss << "• Modo atual: " << (appData->GetDebugMode() ? "Debug" : "Release");
 
     return ss.str();
 }
@@ -487,10 +502,11 @@ void MainController::ShowWelcomeMessage()
         return;
 
     std::stringstream ss;
-    ss << "Bem-vindo ao " << appData->appName << "!\n\n"
-       << "Informações:\n"
-       << "• Versão: " << appData->appVersion << "\n"
-       << "• Desenvolvido por: " << appData->appAuthor << "\n"
+    ss << "🎉 Bem-vindo ao " << appData->GetAppName() << "!\n\n"
+       << "📝 Informações:\n"
+       << "• Versão: " << appData->GetAppVersion() << "\n"
+       << "• Desenvolvido por: " << appData->GetAppAuthor() << "\n"
+       << "• Client ID: " << appData->GetClientId() << "\n"
        << "• Data: " << AppUtils::GetCurrentDate() << "\n"
        << "• Hora: " << AppUtils::GetCurrentTime() << "\n\n"
        << "Arquitetura MVC:\n"

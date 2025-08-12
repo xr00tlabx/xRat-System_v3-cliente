@@ -59,6 +59,15 @@ bool Application::InitializeModules(HINSTANCE hInstance)
 
     try
     {
+        // Inicializar o Sistema de Configuração primeiro
+        if (!Config::Initialize())
+        {
+            AppUtils::ShowErrorMessage("Erro ao inicializar o Sistema de Configuração!");
+            return false;
+        }
+
+        AppUtils::DebugPrint("Application::InitializeModules - Config inicializado\n");
+
         // Inicializar o Controller Principal
         if (!MainController::Initialize(hInstance))
         {
@@ -93,6 +102,10 @@ void Application::ShutdownModules()
         // Finalizar o Controller
         MainController::Shutdown();
         AppUtils::DebugPrint("Application::ShutdownModules - MainController finalizado\n");
+
+        // Finalizar o Sistema de Configuração por último
+        Config::Shutdown();
+        AppUtils::DebugPrint("Application::ShutdownModules - Config finalizado\n");
 
         AppUtils::WriteLog("Todos os módulos finalizados com sucesso", "INFO");
     }

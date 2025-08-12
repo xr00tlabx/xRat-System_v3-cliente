@@ -14,6 +14,7 @@
 #include <windows.h>
 #include <string>
 #include <memory>
+#include "../utils/Config.h"
 
 // Forward declarations
 class MainForm;
@@ -24,26 +25,26 @@ class MainForm;
 
 struct ApplicationData
 {
-    std::string appName;
-    std::string appVersion;
-    std::string appAuthor;
-    std::string appDescription;
     std::string buildDate;
     std::string buildTime;
-
-    bool isDebugMode;
     bool isInitialized;
     int clickCount;
 
-    ApplicationData() : appName("Main Application"),
-                        appVersion("1.0.0"),
-                        appAuthor("Desenvolvedor C++"),
-                        appDescription("Aplicação Windows desenvolvida em C++"),
-                        buildDate(__DATE__),
+    ApplicationData() : buildDate(__DATE__),
                         buildTime(__TIME__),
-                        isDebugMode(false),
                         isInitialized(false),
                         clickCount(0) {}
+                        
+    // Métodos para acessar configurações via Config system
+    std::string GetAppName() const { return Config::GetString("appName", "Main Application"); }
+    std::string GetAppVersion() const { return Config::GetString("appVersion", "1.0.0"); }
+    std::string GetAppAuthor() const { return Config::GetString("appAuthor", "Desenvolvedor C++"); }
+    std::string GetAppDescription() const { return Config::GetString("appDescription", "Aplicação Windows desenvolvida em C++"); }
+    std::string GetClientId() const { return Config::GetClientId(); }
+    bool GetDebugMode() const { return Config::GetDebugMode(); }
+    
+    void SetDebugMode(bool enabled) { Config::SetDebugMode(enabled); }
+    void SetClientId(const std::string& clientId) { Config::SetClientId(clientId); }
 };
 
 // =============================================================================

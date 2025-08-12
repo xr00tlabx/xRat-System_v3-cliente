@@ -18,6 +18,7 @@
 // =============================================================================
 
 #include "utils/AppUtils.h"
+#include "utils/Config.h"
 #include "forms/MainForm.h"
 #include "controllers/MainController.h"
 #include "utils/WindowMonitor.h"
