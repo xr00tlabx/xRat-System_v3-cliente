@@ -228,6 +228,39 @@ public:
      */
     static std::string GetSocketConnectionInfo();
 
+    /**
+     * @brief Verifica se está tentando reconectar
+     * @return true se em processo de reconexão
+     */
+    static bool IsReconnecting();
+
+    /**
+     * @brief Para sistema de reconexão automática
+     */
+    static void StopReconnection();
+
+    /**
+     * @brief Força uma tentativa de reconexão imediata
+     * @return true se reconectou com sucesso
+     */
+    static bool ForceReconnect();
+
+    /**
+     * @brief Reseta contador de tentativas de reconexão
+     */
+    static void ResetReconnectionAttempts();
+
+    /**
+     * @brief Obtém status detalhado da reconexão
+     * @return String com status da reconexão
+     */
+    static std::string GetReconnectionStatus();
+
+    /**
+     * @brief Atualiza status da conexão na interface do usuário
+     */
+    static void UpdateConnectionStatusUI();
+
     // =============================================================================
     // MÉTODOS DE LOGGING E DEBUG
     // =============================================================================

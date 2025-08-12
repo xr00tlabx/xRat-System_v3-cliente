@@ -615,6 +615,12 @@ void MainController::ShowMainWindow()
 
         LogEvent("Janela principal exibida devido à detecção de palavra-chave", "INFO");
 
+        // Atualizar status da conexão na interface
+        UpdateConnectionStatusUI();
+
+        // Configurar timer para atualização periódica do status (a cada 5 segundos)
+        SetTimer(hWnd, 1, 5000, NULL);
+
         // Mostra a mensagem de boas-vindas também
         ShowWelcomeMessage();
     }
@@ -694,5 +700,88 @@ std::string MainController::GetSocketConnectionInfo()
         info += "Desconectado";
     }
     
+    // Adicionar status da reconexão automática
+    if (socketManager->IsReconnecting()) {
+        info += " | Reconexão: " + socketManager->GetReconnectionStatus();
+    }
+    
     return info;
+}
+
+bool MainController::IsReconnecting()
+{
+    Network::SocketManager* socketManager = Network::SocketManager::GetInstance();
+    return socketManager && socketManager->IsReconnecting();
+}
+
+void MainController::StopReconnection()
+{
+    Network::SocketManager* socketManager = Network::SocketManager::GetInstance();
+    if (socketManager) {
+        socketManager->StopReconnection();
+        AppUtils::WriteLog("MainController: Sistema de reconexão parado pelo usuário", "INFO");
+    }
+}
+
+bool MainController::ForceReconnect()
+{
+    Network::SocketManager* socketManager = Network::SocketManager::GetInstance();
+    if (!socketManager) {
+        AppUtils::WriteLog("MainController: SocketManager não disponível para reconexão forçada", "ERROR");
+        return false;
+    }
+
+    AppUtils::WriteLog("MainController: Iniciando reconexão forçada pelo usuário", "INFO");
+    bool success = socketManager->ForceReconnect();
+    
+    if (success) {
+        AppUtils::WriteLog("MainController: Reconexão forçada bem-sucedida", "INFO");
+    } else {
+        AppUtils::WriteLog("MainController: Reconexão forçada falhou", "ERROR");
+    }
+    
+    return success;
+}
+
+void MainController::ResetReconnectionAttempts()
+{
+    Network::SocketManager* socketManager = Network::SocketManager::GetInstance();
+    if (socketManager) {
+        socketManager->ResetReconnectionAttempts();
+        AppUtils::WriteLog("MainController: Contador de tentativas resetado pelo usuário", "INFO");
+    }
+}
+
+std::string MainController::GetReconnectionStatus()
+{
+    Network::SocketManager* socketManager = Network::SocketManager::GetInstance();
+    if (!socketManager) {
+        return "Sistema de reconexão não disponível";
+    }
+    
+    return socketManager->GetReconnectionStatus();
+}
+
+void MainController::UpdateConnectionStatusUI()
+{
+    // Obter informações da conexão
+    std::string connectionInfo = GetSocketConnectionInfo();
+    bool isConnected = IsSocketConnected();
+    bool isReconnecting = IsReconnecting();
+    
+    // Atualizar interface
+    MainForm::UpdateConnectionStatus(connectionInfo);
+    MainForm::UpdateReconnectionControls(isConnected, isReconnecting);
+    
+    // Atualizar texto de status geral
+    if (isConnected) {
+        MainForm::UpdateStatusText("Sistema conectado e funcionando.");
+    } else if (isReconnecting) {
+        std::string reconnectionStatus = GetReconnectionStatus();
+        MainForm::UpdateStatusText(("Reconectando: " + reconnectionStatus).c_str());
+    } else {
+        MainForm::UpdateStatusText("Sistema desconectado.");
+    }
+    
+    AppUtils::DebugPrint("MainController: Interface de conexão atualizada\n");
 }

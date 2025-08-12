@@ -50,7 +50,7 @@ else
     # GCC / MinGW
     CXXFLAGS = -std=$(CPPSTD) $(WARNINGS) $(OPTIMIZATION) -I$(INCLUDE_DIR)
     LDFLAGS = -o $(BIN_DIR)/$(TARGET_NAME)
-    LIBS = -lgdi32 -luser32 -lkernel32
+    LIBS = -lgdi32 -luser32 -lkernel32 -lws2_32
     OBJ_EXT = o
     MKDIR_CMD = mkdir -p $1
     RM_CMD = rm -f
@@ -101,6 +101,7 @@ dirs:
 	$(call MKDIR_CMD,$(OBJ_DIR)/utils)
 	$(call MKDIR_CMD,$(OBJ_DIR)/forms)
 	$(call MKDIR_CMD,$(OBJ_DIR)/controllers)
+	$(call MKDIR_CMD,$(OBJ_DIR)/network)
 
 # Target principal - construir o executável
 $(BIN_DIR)/$(TARGET_NAME): $(OBJECTS)

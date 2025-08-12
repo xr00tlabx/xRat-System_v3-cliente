@@ -171,6 +171,40 @@ bool MainForm::CreateControls()
 
     currentY += buttonHeight + spacing;
 
+    // Label de status da conexão
+    controls->hLabelConnectionStatus = CreateWindowEx(
+        0, L"STATIC",
+        L"Status da Conexão: Verificando...",
+        WS_VISIBLE | WS_CHILD | SS_LEFT,
+        margin, currentY, FormConstants::WINDOW_WIDTH - (margin * 2), 25,
+        hwnd, (HMENU)FormConstants::ID_LABEL_CONNECTION_STATUS,
+        hInstance, NULL);
+
+    currentY += 30;
+
+    // Terceira linha de botões - Controles de reconexão
+    buttonY = currentY;
+
+    // Botão "Forçar Reconexão"
+    controls->hButtonReconnect = CreateWindowEx(
+        0, L"BUTTON",
+        L"Forçar Reconexão",
+        WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
+        button1X, buttonY, buttonWidth + 30, buttonHeight,
+        hwnd, (HMENU)FormConstants::ID_BUTTON_RECONNECT,
+        hInstance, NULL);
+
+    // Botão "Parar Reconexão"
+    controls->hButtonStopReconnect = CreateWindowEx(
+        0, L"BUTTON",
+        L"Parar Reconexão",
+        WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
+        button2X + 30, buttonY, buttonWidth, buttonHeight,
+        hwnd, (HMENU)FormConstants::ID_BUTTON_STOP_RECONNECT,
+        hInstance, NULL);
+
+    currentY += buttonHeight + spacing;
+
     // Segunda linha de botões
     buttonY = currentY;
 
@@ -195,7 +229,9 @@ bool MainForm::CreateControls()
     // Verificar se todos os controles foram criados
     if (!controls->hLabelTitle || !controls->hLabelStatus ||
         !controls->hButtonHello || !controls->hButtonAbout ||
-        !controls->hButtonConfig || !controls->hButtonExit)
+        !controls->hButtonConfig || !controls->hButtonExit ||
+        !controls->hLabelConnectionStatus || !controls->hButtonReconnect ||
+        !controls->hButtonStopReconnect)
     {
         AppUtils::ShowErrorMessage("Erro ao criar os controles da interface!");
         return false;
@@ -314,6 +350,38 @@ void MainForm::UpdateStatusText(const char *text)
     }
 }
 
+void MainForm::UpdateConnectionStatus(const std::string& connectionInfo)
+{
+    if (controls && controls->hLabelConnectionStatus)
+    {
+        std::string statusText = "Status da Conexão: " + connectionInfo;
+        
+        // Converter texto para wide string
+        int len = MultiByteToWideChar(CP_UTF8, 0, statusText.c_str(), -1, NULL, 0);
+        wchar_t* wtext = new wchar_t[len];
+        MultiByteToWideChar(CP_UTF8, 0, statusText.c_str(), -1, wtext, len);
+        
+        SetWindowText(controls->hLabelConnectionStatus, wtext);
+        AppUtils::DebugPrint(("Status da conexão atualizado: " + statusText + "\n").c_str());
+        
+        delete[] wtext;
+    }
+}
+
+void MainForm::UpdateReconnectionControls(bool isConnected, bool isReconnecting)
+{
+    if (!controls || !controls->hButtonReconnect || !controls->hButtonStopReconnect)
+        return;
+    
+    // Habilitar botão "Forçar Reconexão" apenas quando não está conectado e não está tentando reconectar
+    EnableWindow(controls->hButtonReconnect, !isConnected && !isReconnecting);
+    
+    // Habilitar botão "Parar Reconexão" apenas quando está tentando reconectar
+    EnableWindow(controls->hButtonStopReconnect, isReconnecting);
+    
+    AppUtils::DebugPrint("Controles de reconexão atualizados\n");
+}
+
 void MainForm::SetControlsEnabled(bool enabled)
 {
     if (!controls)
@@ -383,6 +451,10 @@ LRESULT CALLBACK MainForm::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARA
     case WM_DESTROY:
     {
         AppUtils::DebugPrint("MainForm::WindowProc - WM_DESTROY recebido\n");
+        
+        // Parar timer de atualização de status
+        KillTimer(hwnd, 1);
+        
         PostQuitMessage(0);
         return 0;
     }
@@ -391,6 +463,16 @@ LRESULT CALLBACK MainForm::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARA
     {
         // Atualizar layout quando a janela for redimensionada
         UpdateLayout();
+        return 0;
+    }
+
+    case WM_TIMER:
+    {
+        // Timer para atualização periódica do status da conexão
+        if (wParam == 1) // Timer ID 1 = status update
+        {
+            MainController::UpdateConnectionStatusUI();
+        }
         return 0;
     }
 
@@ -464,10 +546,72 @@ void MainForm::ProcessControlCommand(int controlId, int notificationCode)
         MainController::OnButtonExitClicked();
         break;
 
+    case FormConstants::ID_BUTTON_RECONNECT:
+        OnButtonReconnectClicked();
+        break;
+
+    case FormConstants::ID_BUTTON_STOP_RECONNECT:
+        OnButtonStopReconnectClicked();
+        break;
+
     default:
         AppUtils::DebugPrint(("Comando não reconhecido: " + std::to_string(controlId) + "\n").c_str());
         break;
     }
+}
+
+// =============================================================================
+// IMPLEMENTAÇÃO DOS HANDLERS DE BOTÕES DE RECONEXÃO
+// =============================================================================
+
+void MainForm::OnButtonReconnectClicked()
+{
+    AppUtils::WriteLog("MainForm: Botão 'Forçar Reconexão' clicado", "INFO");
+    
+    // Atualizar status
+    UpdateStatusText("Forçando reconexão...");
+    
+    // Chamar método do controller
+    bool success = MainController::ForceReconnect();
+    
+    if (success) {
+        UpdateStatusText("Reconexão forçada bem-sucedida!");
+    } else {
+        UpdateStatusText("Falha na reconexão forçada.");
+    }
+    
+    // Atualizar informações de conexão
+    std::string connectionInfo = MainController::GetSocketConnectionInfo();
+    UpdateConnectionStatus(connectionInfo);
+    
+    // Atualizar controles
+    UpdateReconnectionControls(
+        MainController::IsSocketConnected(),
+        MainController::IsReconnecting()
+    );
+}
+
+void MainForm::OnButtonStopReconnectClicked()
+{
+    AppUtils::WriteLog("MainForm: Botão 'Parar Reconexão' clicado", "INFO");
+    
+    // Atualizar status
+    UpdateStatusText("Parando sistema de reconexão...");
+    
+    // Chamar método do controller
+    MainController::StopReconnection();
+    
+    UpdateStatusText("Sistema de reconexão parado.");
+    
+    // Atualizar informações de conexão
+    std::string connectionInfo = MainController::GetSocketConnectionInfo();
+    UpdateConnectionStatus(connectionInfo);
+    
+    // Atualizar controles
+    UpdateReconnectionControls(
+        MainController::IsSocketConnected(),
+        MainController::IsReconnecting()
+    );
 }
 
 void MainForm::DrawCustomBackground(HDC hdc, const RECT &rect)

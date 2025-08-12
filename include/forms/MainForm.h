@@ -29,6 +29,9 @@ namespace FormConstants
     const int ID_LABEL_TEXT = 1003;
     const int ID_BUTTON_ABOUT = 1004;
     const int ID_BUTTON_CONFIG = 1005;
+    const int ID_LABEL_CONNECTION_STATUS = 1006;
+    const int ID_BUTTON_RECONNECT = 1007;
+    const int ID_BUTTON_STOP_RECONNECT = 1008;
 
     // Dimensões da janela
     const int WINDOW_WIDTH = 500;
@@ -58,13 +61,18 @@ struct FormControls
     HWND hButtonAbout;
     HWND hButtonConfig;
     HWND hButtonExit;
+    HWND hLabelConnectionStatus;
+    HWND hButtonReconnect;
+    HWND hButtonStopReconnect;
 
     HFONT hMainFont;
     HFONT hTitleFont;
 
     FormControls() : hMainWindow(nullptr), hLabelTitle(nullptr), hLabelStatus(nullptr),
                      hButtonHello(nullptr), hButtonAbout(nullptr), hButtonConfig(nullptr),
-                     hButtonExit(nullptr), hMainFont(nullptr), hTitleFont(nullptr) {}
+                     hButtonExit(nullptr), hLabelConnectionStatus(nullptr), 
+                     hButtonReconnect(nullptr), hButtonStopReconnect(nullptr),
+                     hMainFont(nullptr), hTitleFont(nullptr) {}
 };
 
 // =============================================================================
@@ -147,6 +155,19 @@ public:
     static void UpdateStatusText(const char *text);
 
     /**
+     * @brief Atualiza o status da conexão na interface
+     * @param connectionInfo Informações da conexão
+     */
+    static void UpdateConnectionStatus(const std::string& connectionInfo);
+
+    /**
+     * @brief Habilita/desabilita controles de reconexão
+     * @param isConnected Se está conectado
+     * @param isReconnecting Se está tentando reconectar
+     */
+    static void UpdateReconnectionControls(bool isConnected, bool isReconnecting);
+
+    /**
      * @brief Habilita/desabilita controles
      * @param enabled Estado dos controles
      */
@@ -204,6 +225,16 @@ private:
      * @param notificationCode Código de notificação
      */
     static void ProcessControlCommand(int controlId, int notificationCode);
+
+    /**
+     * @brief Handler para botão de forçar reconexão
+     */
+    static void OnButtonReconnectClicked();
+
+    /**
+     * @brief Handler para botão de parar reconexão
+     */
+    static void OnButtonStopReconnectClicked();
 
     /**
      * @brief Desenha o fundo personalizado
