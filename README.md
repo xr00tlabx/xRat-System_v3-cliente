@@ -15,12 +15,14 @@ Aplicação Windows nativa em C++ com arquitetura MVC para monitoramento e contr
 ├── src/                    # Código-fonte
 │   ├── controllers/        # Lógica de negócio
 │   ├── forms/             # Interface gráfica Win32
-│   ├── utils/             # Utilitários e monitoramento
+│   ├── utils/             # Utilitários, monitoramento e configuração
 │   └── main.cpp           # Ponto de entrada
 ├── include/               # Headers correspondentes
+├── examples/              # Exemplos de uso do sistema
 ├── bin/                   # Executáveis gerados
 ├── obj/                   # Arquivos objeto
 ├── docs/                  # Documentação
+├── config.json            # Arquivo de configuração centralizada
 ├── Makefile              # Build principal
 ├── Makefile.mvc          # Build modular MVC
 └── build_mvc.bat         # Script de build Windows
@@ -50,6 +52,8 @@ mingw32-make run
 - Thread de monitoramento de janelas ativas em background
 - Modo debug/release configurável
 - Arquitetura modular para fácil manutenção
+- **Sistema de configuração centralizada** com arquivo JSON
+- **Client ID configurável** e outras configurações personalizáveis
 
 ## Requisitos
 - Windows 7 ou superior
@@ -63,6 +67,43 @@ O sistema registra automaticamente:
 - Debug info em modo de desenvolvimento
 
 Verifique `bin/application.log` para acompanhar a atividade.
+
+## Sistema de Configuração
+
+A aplicação agora possui um sistema de configuração centralizada baseado em JSON:
+
+### Arquivo de Configuração (`config.json`)
+```json
+{
+  "clientId": "CLIENT_DEFAULT_001",
+  "appName": "Main Application",
+  "appVersion": "1.0.0", 
+  "debugMode": false,
+  "autoSave": true,
+  "windowWidth": 600,
+  "windowHeight": 400
+}
+```
+
+### Como Usar no Código
+```cpp
+// Ler configurações
+std::string clientId = Config::GetClientId();
+bool debugMode = Config::GetDebugMode();
+
+// Modificar configurações
+Config::SetClientId("NEW_CLIENT_123");
+Config::SetDebugMode(true);
+```
+
+### Configurações Disponíveis
+- **clientId**: Identificador único do cliente
+- **debugMode**: Modo debug ativo/inativo
+- **appName, appVersion, appAuthor**: Metadados da aplicação  
+- **windowWidth, windowHeight**: Dimensões da janela
+- **autoSave, logLevel**: Configurações de comportamento
+
+Consulte `CONFIG_SYSTEM.md` para documentação completa e `examples/` para exemplos de uso.
 
 ## Desenvolvido em
 - **Data**: Agosto 2025
