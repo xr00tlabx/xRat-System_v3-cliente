@@ -5,6 +5,20 @@ Todas as mudanças notáveis neste projeto serão documentadas neste arquivo.
 O formato é baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0/),
 e este projeto adere ao [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
+## [1.0.2] - 2025-08-11
+
+### Corrigido
+- **CRÍTICO**: Corrigido erro de linkagem "undefined reference to Config::*" que impedia a compilação
+- Adicionado módulo Config.cpp aos scripts de build (build_mvc.bat)
+- Atualizados workflows GitHub Actions para incluir compilação do módulo Config
+- Corrigida numeração dos passos de build (1/7 a 7/7)
+- Incluído obj/utils/Config.o no processo de linkagem para MinGW e MSVC
+
+### Melhorado
+- Build agora completa em ~6 segundos sem erros
+- Todos os módulos (AppUtils, Config, WindowMonitor, Controllers, Forms, Main) sendo compilados corretamente
+- Sistema de configuração totalmente funcional
+
 ## [1.0.1] - 2025-08-12
 
 ### Corrigido

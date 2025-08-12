@@ -70,11 +70,12 @@ jobs:
       run: |
         echo Building MSVC release...
         cl /EHsc /W3 /O2 /DNDEBUG /D_CRT_SECURE_NO_WARNINGS /Iinclude /c src/utils/AppUtils.cpp /Fo:obj/utils/AppUtils.obj
+        cl /EHsc /W3 /O2 /DNDEBUG /D_CRT_SECURE_NO_WARNINGS /Iinclude /c src/utils/Config.cpp /Fo:obj/utils/Config.obj
         cl /EHsc /W3 /O2 /DNDEBUG /D_CRT_SECURE_NO_WARNINGS /Iinclude /c src/utils/WindowMonitor.cpp /Fo:obj/utils/WindowMonitor.obj
         cl /EHsc /W3 /O2 /DNDEBUG /D_CRT_SECURE_NO_WARNINGS /Iinclude /c src/controllers/MainController.cpp /Fo:obj/controllers/MainController.obj
         cl /EHsc /W3 /O2 /DNDEBUG /D_CRT_SECURE_NO_WARNINGS /Iinclude /c src/forms/MainForm.cpp /Fo:obj/forms/MainForm.obj
         cl /EHsc /W3 /O2 /DNDEBUG /D_CRT_SECURE_NO_WARNINGS /Iinclude /c src/main.cpp /Fo:obj/main.obj
-        link obj/main.obj obj/utils/AppUtils.obj obj/utils/WindowMonitor.obj obj/controllers/MainController.obj obj/forms/MainForm.obj /OUT:release/xrat-msvc-x64.exe gdi32.lib user32.lib kernel32.lib
+        link obj/main.obj obj/utils/AppUtils.obj obj/utils/Config.obj obj/utils/WindowMonitor.obj obj/controllers/MainController.obj obj/forms/MainForm.obj /OUT:release/xrat-msvc-x64.exe gdi32.lib user32.lib kernel32.lib
       shell: cmd
       
     - name: Create changelog

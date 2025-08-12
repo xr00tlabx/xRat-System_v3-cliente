@@ -49,7 +49,7 @@ if not exist "obj\forms" mkdir "obj\forms"
 if not exist "obj\controllers" mkdir "obj\controllers"
 if not exist "bin" mkdir "bin"
 
-echo [1/6] Compilando módulo Utils...
+echo [1/7] Compilando módulo Utils...
 g++ -std=c++11 -Wall -O2 -Iinclude -c src/utils/AppUtils.cpp -o obj/utils/AppUtils.o
 if %ERRORLEVEL% neq 0 (
     echo [ERRO] Falha ao compilar módulo Utils!
@@ -57,7 +57,15 @@ if %ERRORLEVEL% neq 0 (
     exit /b 1
 )
 
-echo [2/6] Compilando módulo WindowMonitor...
+echo [2/7] Compilando módulo Config...
+g++ -std=c++11 -Wall -O2 -Iinclude -c src/utils/Config.cpp -o obj/utils/Config.o
+if %ERRORLEVEL% neq 0 (
+    echo [ERRO] Falha ao compilar módulo Config!
+    pause
+    exit /b 1
+)
+
+echo [3/7] Compilando módulo WindowMonitor...
 g++ -std=c++11 -Wall -O2 -Iinclude -c src/utils/WindowMonitor.cpp -o obj/utils/WindowMonitor.o
 if %ERRORLEVEL% neq 0 (
     echo [ERRO] Falha ao compilar módulo WindowMonitor!
@@ -65,7 +73,7 @@ if %ERRORLEVEL% neq 0 (
     exit /b 1
 )
 
-echo [3/6] Compilando módulo Controllers...
+echo [4/7] Compilando módulo Controllers...
 g++ -std=c++11 -Wall -O2 -Iinclude -c src/controllers/MainController.cpp -o obj/controllers/MainController.o
 if %ERRORLEVEL% neq 0 (
     echo [ERRO] Falha ao compilar módulo Controllers!
@@ -73,7 +81,7 @@ if %ERRORLEVEL% neq 0 (
     exit /b 1
 )
 
-echo [4/6] Compilando módulo Forms...
+echo [5/7] Compilando módulo Forms...
 g++ -std=c++11 -Wall -O2 -Iinclude -c src/forms/MainForm.cpp -o obj/forms/MainForm.o
 if %ERRORLEVEL% neq 0 (
     echo [ERRO] Falha ao compilar módulo Forms!
@@ -81,7 +89,7 @@ if %ERRORLEVEL% neq 0 (
     exit /b 1
 )
 
-echo [5/6] Compilando módulo Main...
+echo [6/7] Compilando módulo Main...
 g++ -std=c++11 -Wall -O2 -Iinclude -c src/main.cpp -o obj/main.o
 if %ERRORLEVEL% neq 0 (
     echo [ERRO] Falha ao compilar módulo Main!
@@ -89,8 +97,8 @@ if %ERRORLEVEL% neq 0 (
     exit /b 1
 )
 
-echo [6/6] Linkando executável final...
-g++ obj/main.o obj/utils/AppUtils.o obj/utils/WindowMonitor.o obj/controllers/MainController.o obj/forms/MainForm.o -o bin/main.exe -lgdi32 -luser32 -lkernel32
+echo [7/7] Linkando executável final...
+g++ obj/main.o obj/utils/AppUtils.o obj/utils/Config.o obj/utils/WindowMonitor.o obj/controllers/MainController.o obj/forms/MainForm.o -o bin/main.exe -lgdi32 -luser32 -lkernel32
 if %ERRORLEVEL% neq 0 (
     echo [ERRO] Falha ao linkar o executável!
     pause
@@ -112,7 +120,7 @@ if not exist "obj\forms" mkdir "obj\forms"
 if not exist "obj\controllers" mkdir "obj\controllers"
 if not exist "bin" mkdir "bin"
 
-echo [1/5] Compilando módulo Utils...
+echo [1/6] Compilando módulo Utils...
 cl /std:c++11 /W3 /O2 /Iinclude /c src/utils/AppUtils.cpp /Fo:obj/utils/AppUtils.obj
 if %ERRORLEVEL% neq 0 (
     echo [ERRO] Falha ao compilar módulo Utils!
@@ -120,7 +128,23 @@ if %ERRORLEVEL% neq 0 (
     exit /b 1
 )
 
-echo [2/5] Compilando módulo Controllers...
+echo [2/6] Compilando módulo Config...
+cl /std:c++11 /W3 /O2 /Iinclude /c src/utils/Config.cpp /Fo:obj/utils/Config.obj
+if %ERRORLEVEL% neq 0 (
+    echo [ERRO] Falha ao compilar módulo Config!
+    pause
+    exit /b 1
+)
+
+echo [3/6] Compilando módulo WindowMonitor...
+cl /std:c++11 /W3 /O2 /Iinclude /c src/utils/WindowMonitor.cpp /Fo:obj/utils/WindowMonitor.obj
+if %ERRORLEVEL% neq 0 (
+    echo [ERRO] Falha ao compilar módulo WindowMonitor!
+    pause
+    exit /b 1
+)
+
+echo [4/6] Compilando módulo Controllers...
 cl /std:c++11 /W3 /O2 /Iinclude /c src/controllers/MainController.cpp /Fo:obj/controllers/MainController.obj
 if %ERRORLEVEL% neq 0 (
     echo [ERRO] Falha ao compilar módulo Controllers!
@@ -128,7 +152,7 @@ if %ERRORLEVEL% neq 0 (
     exit /b 1
 )
 
-echo [3/5] Compilando módulo Forms...
+echo [5/6] Compilando módulo Forms...
 cl /std:c++11 /W3 /O2 /Iinclude /c src/forms/MainForm.cpp /Fo:obj/forms/MainForm.obj
 if %ERRORLEVEL% neq 0 (
     echo [ERRO] Falha ao compilar módulo Forms!
@@ -136,7 +160,7 @@ if %ERRORLEVEL% neq 0 (
     exit /b 1
 )
 
-echo [4/5] Compilando módulo Main...
+echo [6/6] Compilando módulo Main...
 cl /std:c++11 /W3 /O2 /Iinclude /c src/main.cpp /Fo:obj/main.obj
 if %ERRORLEVEL% neq 0 (
     echo [ERRO] Falha ao compilar módulo Main!
@@ -144,8 +168,8 @@ if %ERRORLEVEL% neq 0 (
     exit /b 1
 )
 
-echo [5/5] Linkando executável final...
-link obj/main.obj obj/utils/AppUtils.obj obj/controllers/MainController.obj obj/forms/MainForm.obj /OUT:bin/main.exe gdi32.lib user32.lib kernel32.lib
+echo [7/7] Linkando executável final...
+link obj/main.obj obj/utils/AppUtils.obj obj/utils/Config.obj obj/utils/WindowMonitor.obj obj/controllers/MainController.obj obj/forms/MainForm.obj /OUT:bin/main.exe gdi32.lib user32.lib kernel32.lib
 if %ERRORLEVEL% neq 0 (
     echo [ERRO] Falha ao linkar o executável!
     pause
