@@ -16,57 +16,26 @@ jobs:
       uses: actions/checkout@v4
       
     - name: Setup MinGW
-      run: |
-        choco install mingw -y --no-progress
-        
-        # Refresh environment variables
-        refreshenv
-        
-        # Look for MinGW in common installation paths
-        $mingwPaths = @(
-          "C:\ProgramData\mingw64\mingw64\bin",
-          "C:\ProgramData\chocolatey\lib\mingw\tools\install\mingw64\bin",
-          "C:\mingw64\bin",
-          "C:\tools\mingw64\bin"
-        )
-        
-        $foundPath = $null
-        foreach ($path in $mingwPaths) {
-          if (Test-Path $path) {
-            $foundPath = $path
-            break
-          }
-        }
-        
-        if ($foundPath) {
-          echo "$foundPath" >> $env:GITHUB_PATH
-          Write-Host "MinGW encontrado em: $foundPath"
-          Write-Host "MinGW instalado e adicionado ao PATH"
-        } else {
-          Write-Host "Caminhos testados:"
-          foreach ($path in $mingwPaths) {
-            Write-Host "  $path - $(if (Test-Path $path) { 'Existe' } else { 'Nao encontrado' })"
-          }
-          throw "MinGW nao encontrado apos instalacao"
-        }
-      shell: powershell
+      uses: msys2/setup-msys2@v2
+      with:
+        msystem: MINGW64
+        update: true
+        install: >-
+          mingw-w64-x86_64-gcc
+          mingw-w64-x86_64-make
         
     - name: Create build directories
+      shell: msys2 {0}
       run: |
-        if (!(Test-Path "obj")) { New-Item -ItemType Directory -Path "obj" }
-        if (!(Test-Path "obj\utils")) { New-Item -ItemType Directory -Path "obj\utils" }
-        if (!(Test-Path "obj\forms")) { New-Item -ItemType Directory -Path "obj\forms" }
-        if (!(Test-Path "obj\controllers")) { New-Item -ItemType Directory -Path "obj\controllers" }
-        if (!(Test-Path "bin")) { New-Item -ItemType Directory -Path "bin" }
-      shell: powershell
+        mkdir -p obj/utils obj/forms obj/controllers bin
       
     - name: Build with MinGW
+      shell: msys2 {0}
       run: |
         g++ --version
-        mingw32-make.exe info
-        mingw32-make.exe clean
-        mingw32-make.exe all
-      shell: cmd
+        make info
+        make clean
+        make all
       
     - name: Test executable exists
       run: |
