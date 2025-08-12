@@ -165,6 +165,7 @@ void MainController::OnButtonHelloClicked()
 
     AppUtils::ShowInfoMessage(ss.str().c_str(), "Informações do Sistema");
 
+
     // Atualizar status no formulário
     MainForm::UpdateStatusText("Informações exibidas com sucesso!");
 
@@ -508,10 +509,10 @@ void MainController::ShowWelcomeMessage()
        << "• Client ID: " << appData->GetClientId() << "\n"
        << "• Data: " << AppUtils::GetCurrentDate() << "\n"
        << "• Hora: " << AppUtils::GetCurrentTime() << "\n\n"
-       << "🏗️ Arquitetura MVC:\n"
+       << "Arquitetura MVC:\n"
        << "Esta aplicação utiliza o padrão Model-View-Controller "
        << "para separar responsabilidades e facilitar manutenção.\n\n"
-       << "🎮 Como usar:\n"
+       << "Como usar:\n"
        << "• Clique em 'Mostrar Informações' para ver detalhes\n"
        << "• Use 'Sobre' para informações da aplicação\n"
        << "• 'Configurações' para alterar o modo debug\n"

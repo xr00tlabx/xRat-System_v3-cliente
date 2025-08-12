@@ -90,22 +90,34 @@ namespace AppUtils
 
     void ShowErrorMessage(const char *message, const char *title)
     {
-        MessageBox(NULL, message, title, MB_OK | MB_ICONERROR);
+        // Converter para Unicode
+        std::wstring wmessage = StringToWString(std::string(message));
+        std::wstring wtitle = title ? StringToWString(std::string(title)) : L"Erro";
+        MessageBoxW(NULL, wmessage.c_str(), wtitle.c_str(), MB_OK | MB_ICONERROR);
     }
 
     void ShowInfoMessage(const char *message, const char *title)
     {
-        MessageBox(NULL, message, title, MB_OK | MB_ICONINFORMATION);
+        // Converter para Unicode
+        std::wstring wmessage = StringToWString(std::string(message));
+        std::wstring wtitle = title ? StringToWString(std::string(title)) : L"Informação";
+        MessageBoxW(NULL, wmessage.c_str(), wtitle.c_str(), MB_OK | MB_ICONINFORMATION);
     }
 
     void ShowWarningMessage(const char *message, const char *title)
     {
-        MessageBox(NULL, message, title, MB_OK | MB_ICONWARNING);
+        // Converter para Unicode
+        std::wstring wmessage = StringToWString(std::string(message));
+        std::wstring wtitle = title ? StringToWString(std::string(title)) : L"Aviso";
+        MessageBoxW(NULL, wmessage.c_str(), wtitle.c_str(), MB_OK | MB_ICONWARNING);
     }
 
     bool ConfirmAction(const char *message, const char *title)
     {
-        int result = MessageBox(NULL, message, title, MB_YESNO | MB_ICONQUESTION);
+        // Converter para Unicode
+        std::wstring wmessage = StringToWString(std::string(message));
+        std::wstring wtitle = title ? StringToWString(std::string(title)) : L"Confirmação";
+        int result = MessageBoxW(NULL, wmessage.c_str(), wtitle.c_str(), MB_YESNO | MB_ICONQUESTION);
         return (result == IDYES);
     }
 

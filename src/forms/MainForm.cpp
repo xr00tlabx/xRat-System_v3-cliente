@@ -8,6 +8,13 @@
 // Data: 11/08/2025
 // =============================================================================
 
+#ifndef UNICODE
+#define UNICODE
+#endif
+#ifndef _UNICODE
+#define _UNICODE
+#endif
+
 #include "../../include/forms/MainForm.h"
 #include "../../include/controllers/MainController.h"
 #include "../../include/utils/AppUtils.h"
@@ -63,8 +70,8 @@ bool MainForm::CreateMainWindow(int nCmdShow)
     // Criar a janela principal
     controls->hMainWindow = CreateWindowEx(
         WS_EX_CLIENTEDGE,
-        "MainApplicationWindow",
-        "Main Application - Arquitetura MVC",
+        L"MainApplicationWindow",
+        L"Main Application - Arquitetura MVC",
         WS_OVERLAPPEDWINDOW & ~WS_MAXIMIZEBOX,
         CW_USEDEFAULT, CW_USEDEFAULT,
         FormConstants::WINDOW_WIDTH, FormConstants::WINDOW_HEIGHT,
@@ -119,8 +126,8 @@ bool MainForm::CreateControls()
 
     // Label de título
     controls->hLabelTitle = CreateWindowEx(
-        0, "STATIC",
-        "🎯 Main Application - Arquitetura MVC",
+        0, L"STATIC",
+        L"Main Application - Arquitetura MVC",
         WS_VISIBLE | WS_CHILD | SS_CENTER,
         margin, currentY, FormConstants::WINDOW_WIDTH - (margin * 2), 30,
         hwnd, (HMENU)FormConstants::ID_LABEL_TEXT,
@@ -130,8 +137,8 @@ bool MainForm::CreateControls()
 
     // Label de status
     controls->hLabelStatus = CreateWindowEx(
-        0, "STATIC",
-        "Pronto para uso. Clique em um botão para começar!",
+        0, L"STATIC",
+        L"Pronto para uso. Clique em um botão para começar!",
         WS_VISIBLE | WS_CHILD | SS_CENTER,
         margin, currentY, FormConstants::WINDOW_WIDTH - (margin * 2), 25,
         hwnd, (HMENU)(FormConstants::ID_LABEL_TEXT + 10),
@@ -146,8 +153,8 @@ bool MainForm::CreateControls()
 
     // Botão "Mostrar Informações"
     controls->hButtonHello = CreateWindowEx(
-        0, "BUTTON",
-        "📊 Mostrar Informações",
+        0, L"BUTTON",
+        L"Mostrar Informações",
         WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,
         button1X, buttonY, buttonWidth + 30, buttonHeight,
         hwnd, (HMENU)FormConstants::ID_BUTTON_HELLO,
@@ -155,8 +162,8 @@ bool MainForm::CreateControls()
 
     // Botão "Sobre"
     controls->hButtonAbout = CreateWindowEx(
-        0, "BUTTON",
-        "ℹ️ Sobre",
+        0, L"BUTTON",
+        L"Sobre",
         WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
         button2X + 30, buttonY, buttonWidth, buttonHeight,
         hwnd, (HMENU)FormConstants::ID_BUTTON_ABOUT,
@@ -169,8 +176,8 @@ bool MainForm::CreateControls()
 
     // Botão "Configurações"
     controls->hButtonConfig = CreateWindowEx(
-        0, "BUTTON",
-        "⚙️ Configurações",
+        0, L"BUTTON",
+        L"Configurações",
         WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
         button1X, buttonY, buttonWidth + 30, buttonHeight,
         hwnd, (HMENU)FormConstants::ID_BUTTON_CONFIG,
@@ -178,8 +185,8 @@ bool MainForm::CreateControls()
 
     // Botão "Sair"
     controls->hButtonExit = CreateWindowEx(
-        0, "BUTTON",
-        "🚪 Sair",
+        0, L"BUTTON",
+        L"Sair",
         WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
         button2X + 30, buttonY, buttonWidth, buttonHeight,
         hwnd, (HMENU)FormConstants::ID_BUTTON_EXIT,
@@ -295,8 +302,15 @@ void MainForm::UpdateStatusText(const char *text)
 {
     if (controls && controls->hLabelStatus)
     {
-        SetWindowText(controls->hLabelStatus, text);
+        // Converter texto para wide string
+        int len = MultiByteToWideChar(CP_UTF8, 0, text, -1, NULL, 0);
+        wchar_t* wtext = new wchar_t[len];
+        MultiByteToWideChar(CP_UTF8, 0, text, -1, wtext, len);
+        
+        SetWindowText(controls->hLabelStatus, wtext);
         AppUtils::DebugPrint(("Status atualizado: " + std::string(text) + "\n").c_str());
+        
+        delete[] wtext;
     }
 }
 
@@ -396,7 +410,7 @@ bool MainForm::RegisterWindowClass()
     wc.style = CS_HREDRAW | CS_VREDRAW;
     wc.lpfnWndProc = WindowProc;
     wc.hInstance = hInstance;
-    wc.lpszClassName = "MainApplicationWindow";
+    wc.lpszClassName = L"MainApplicationWindow";
     wc.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
     wc.hCursor = LoadCursor(NULL, IDC_ARROW);
     wc.hIcon = LoadIcon(NULL, IDI_APPLICATION);

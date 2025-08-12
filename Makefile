@@ -12,7 +12,7 @@
 # =============================================================================
 
 PROJECT_NAME = main
-VERSION = 1.0.0
+VERSION = 1.0.1
 TARGET_NAME = $(PROJECT_NAME).exe
 
 # Diretórios
